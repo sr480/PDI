@@ -7,6 +7,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PDI", "PDI\PDI.csproj", "{C
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChartControl", "ChartControl\ChartControl.csproj", "{5DB07D80-9256-4C4D-8938-7D2AB67A8873}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommunicationTests", "CommunicationTests\CommunicationTests.csproj", "{96BF46F7-ED95-442B-BFD9-D76553ABCC27}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ComDebug", "ComDebug\ComDebug.csproj", "{987775BC-A452-4A62-AC22-3ADCE47EB27D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +25,14 @@ Global
 		{5DB07D80-9256-4C4D-8938-7D2AB67A8873}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5DB07D80-9256-4C4D-8938-7D2AB67A8873}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5DB07D80-9256-4C4D-8938-7D2AB67A8873}.Release|Any CPU.Build.0 = Release|Any CPU
+		{96BF46F7-ED95-442B-BFD9-D76553ABCC27}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{96BF46F7-ED95-442B-BFD9-D76553ABCC27}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{96BF46F7-ED95-442B-BFD9-D76553ABCC27}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{96BF46F7-ED95-442B-BFD9-D76553ABCC27}.Release|Any CPU.Build.0 = Release|Any CPU
+		{987775BC-A452-4A62-AC22-3ADCE47EB27D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{987775BC-A452-4A62-AC22-3ADCE47EB27D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{987775BC-A452-4A62-AC22-3ADCE47EB27D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{987775BC-A452-4A62-AC22-3ADCE47EB27D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

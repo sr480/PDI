@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace PDI.Communication
 {
-    class BaseRespond
+    public class BaseRespond
     {
     }
 }

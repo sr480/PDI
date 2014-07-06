@@ -44,7 +44,7 @@ namespace PDI.Communication
         private void calcCRCTable()
         {
             UInt16 value;
-            for (byte i = 0; i < _table.Length; ++i)
+            for (int i = 0; i < _table.Length; ++i)
             {
                 value = (UInt16)(i << 8);
 

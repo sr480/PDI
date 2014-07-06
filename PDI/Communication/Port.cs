@@ -7,7 +7,7 @@ using System.IO.Ports;
 
 namespace PDI.Communication
 {
-    class Port : IDisposable
+    public class Port : IDisposable
     {
         public static string[] GetPorts()
         {
@@ -37,7 +37,7 @@ namespace PDI.Communication
 
             _lastCommand = command;
             _respondeBuf = new byte[_lastCommand.DataLen];
-            _bufReadCursor = 0;
+            
             _resends = 0;
 
             Send();
@@ -45,13 +45,20 @@ namespace PDI.Communication
 
         private void Send()
         {
+            _bufReadCursor = 0;
+
             byte[] commandBuf = new byte[_lastCommand.Message.Length + 2];
             _lastCommand.Message.CopyTo(commandBuf, 0);
             _crcHelper.Calculate(_lastCommand.Message).CopyTo(commandBuf, _lastCommand.Message.Length);
 
             _port.Write(commandBuf, 0, commandBuf.Length);
             _resends++;
-            Console.WriteLine("Отправка сообщения. Попытка {0} из {1}", _resends, MAX_RESENDS);
+            Console.WriteLine("Отправка сообщения:");
+            foreach (var bt in commandBuf)
+            {
+                Console.Write(bt.ToString("X2") + " ");
+            }
+            Console.WriteLine("Попытка {0} из {1}", _resends, MAX_RESENDS);
         }
 
         void _port_DataReceived(object sender, SerialDataReceivedEventArgs e)
@@ -72,10 +79,10 @@ namespace PDI.Communication
                 return;
 
             Console.WriteLine("Получено ссобщение:");
-            for (int pos = _bufReadCursor; _bufReadCursor < _bufReadCursor + len; pos++)
+            for (int pos = _bufReadCursor; pos < _bufReadCursor + dataread; pos++)
                 Console.Write(_respondeBuf[pos].ToString("X2") + " ");
             _bufReadCursor += dataread;
-
+            Console.WriteLine(System.Text.Encoding.ASCII.GetString(_respondeBuf, 0, _bufReadCursor));
             if (_bufReadCursor == _lastCommand.DataLen)
                 OnRespondeRecieved();
         }

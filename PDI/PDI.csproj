@@ -65,7 +65,7 @@
     <Compile Include="Communication\BaseRespond.cs" />
     <Compile Include="Communication\CRC16.cs" />
     <Compile Include="Communication\Port.cs" />
-    <Compile Include="Communication\RequestDataCommand.cs" />
+    <Compile Include="Communication\RequestExperimentStateCommand.cs" />
     <Compile Include="MainViewModel.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>

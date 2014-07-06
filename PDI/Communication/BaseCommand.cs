@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace PDI.Communication
 {
-    abstract class BaseCommand
+    public abstract class BaseCommand
     {
         public byte[] Message
         { get; private set; }

@@ -6,17 +6,14 @@ using System.Threading.Tasks;
 
 namespace PDI.Communication
 {
-    class RequestExperimentStateCommand : BaseCommand
+    public class RequestExperimentStateCommand : BaseCommand
     {
         public override int DataLen
         {
-            get { return 1610; }
+            get { return 1612; }
         }
 
         public event RequestExperimentStateRecievedEventHandler RespondRecieved;
-
-        double[] _recivedTenso = new double[800];
-        public double TD1 { get; private set; }
 
         public RequestExperimentStateCommand() : base(new byte[] { 0x01 }) { }
 
@@ -52,9 +49,9 @@ namespace PDI.Communication
             return ((data[1609] << 8) + data[1610]) / 200.0; //1000 импульсов на 5 мм
         }
     }
-    delegate void RequestExperimentStateRecievedEventHandler(object sender, RequestExperimentStateRecievedEventArgs eventArgs);
+    public delegate void RequestExperimentStateRecievedEventHandler(object sender, RequestExperimentStateRecievedEventArgs eventArgs);
 
-    class RequestExperimentStateRecievedEventArgs : EventArgs
+    public class RequestExperimentStateRecievedEventArgs : EventArgs
     {
         public double[] Tensos { get; private set; }
         public double TD1 { get; private set; }
