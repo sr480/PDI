@@ -1,8 +1,88 @@
-﻿<Window x:Class="PDI.MainWindow"
+﻿<Window
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="MainWindow" Height="350" Width="525">
+        xmlns:ChartControl="clr-namespace:ChartControl;assembly=ChartControl" x:Class="PDI.MainWindow"
+        Title="MainWindow" Height="560" Width="960" MinHeight="560" MinWidth="960">
     <Grid>
-        
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition Width="200"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50"/>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition Height="22"/>
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Column="1" Grid.RowSpan="3" Margin="3">
+            <HeaderedContentControl Header="Порт:">
+                <ComboBox/>
+            </HeaderedContentControl>
+            <HeaderedContentControl Header="Скорость:">
+                <ComboBox/>
+            </HeaderedContentControl>
+            <Button Margin="0,3,0,0">Подключить</Button>
+            <GroupBox Header="Параметры испытания">
+                <StackPanel>
+                    <HeaderedContentControl Header="Частота толкателя (Гц):">
+                        <StackPanel>
+                            <Slider Minimum="5" Maximum="25" SmallChange="1"></Slider>
+                            <Label HorizontalAlignment="Right">5 Гц</Label>
+                        </StackPanel>
+                    </HeaderedContentControl>
+                    <HeaderedContentControl Header="Максимальное усилие (кг):">
+                        <StackPanel>
+                            <Slider Minimum="10" Maximum="600" SmallChange="1"></Slider>
+                            <Label HorizontalAlignment="Right">10 кг</Label>
+                        </StackPanel>
+                    </HeaderedContentControl>
+                    <HeaderedContentControl Header="Температура (°C):">
+                        <StackPanel>
+                            <Slider Minimum="20" Maximum="70" SmallChange="1"></Slider>
+                            <Label HorizontalAlignment="Right">70 °</Label>
+                        </StackPanel>
+                    </HeaderedContentControl>
+                    <HeaderedContentControl Header="Длительность (циклы):">
+                        <StackPanel>
+                            <Slider Minimum="20" Maximum="70" SmallChange="1"></Slider>
+                            <Label HorizontalAlignment="Right">1000</Label>
+                        </StackPanel>
+                    </HeaderedContentControl>
+                    <Button>Запустить испытание</Button>
+                </StackPanel>
+            </GroupBox>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Grid.Column="0" Grid.Row="0">
+            <Label FontSize="25" BorderThickness="1" BorderBrush="Black" Margin="2">ПОЗ: 177,2 мм</Label>
+            <Label FontSize="25" BorderThickness="1" BorderBrush="Black" Margin="2">ТД1: 35 °С</Label>
+            <Label FontSize="25" BorderThickness="1" BorderBrush="Black" Margin="2">ТД2: 42 °С</Label>
+            <Label FontSize="25" BorderThickness="1" BorderBrush="Black" Margin="2">ТД3: 36 °С</Label>
+            <Label FontSize="25" BorderThickness="1" BorderBrush="Black" Margin="2">ТД4: 54 °С</Label>
+        </StackPanel>
+        <ChartControl:ChartControl Grid.Column="0" Grid.Row="1" VerticalAlignment="Stretch"
+                                   Title="Ход испытания:"
+                                   YLable="Положение стола (мм)"
+                                   XLable="Циклов"
+                                   YMinimum="0"
+                                   YMaximum="220"
+                                   YGridStep="10"
+                                   XMinimum="0"
+                                   XMaximum="3000"
+                                   XGridStep="50"
+                                   DataSource="123"
+                                   />
+
+        <ChartControl:ChartControl Grid.Column="0" Grid.Row="2" VerticalAlignment="Stretch"
+                                   Title="Текущее показание:"
+                                   YLable="Усилие (кг)"
+                                   XLable="Время (мс)"
+                                   YMinimum="0"
+                                   YMaximum="600"
+                                   YGridStep="30"
+                                   XMinimum="0"
+                                   XMaximum="1000"
+                                   XGridStep="50"
+                                   DataSource="123"
+                                   />
     </Grid>
 </Window>
