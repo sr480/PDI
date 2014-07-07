@@ -17,7 +17,6 @@ namespace ComDebug
 
             var timeStamp = DateTime.Now;
             Console.ReadKey();
-
         }
 
         static void cmd_RespondRecieved(object sender, PDI.Communication.RequestExperimentStateRecievedEventArgs eventArgs)

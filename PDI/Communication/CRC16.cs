@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace PDI.Communication
 {
-    class CRC16
+    public class CRC16
     {
         private UInt16[] _table;
         private UInt16 _polynom;

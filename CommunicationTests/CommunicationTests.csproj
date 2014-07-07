@@ -52,6 +52,7 @@
   <ItemGroup>
     <Compile Include="RequestDataCommandTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="CRC16Tests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PDI\PDI.csproj">
