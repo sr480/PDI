@@ -6,7 +6,11 @@ using System.Threading.Tasks;
 
 namespace PDI.Communication
 {
-    public class BaseRespond
+    public class BytesToTemperature
     {
+        public static double GetTemperature(byte hiBt, byte loBt)
+        {
+            return (hiBt << 8) + loBt;
+        }
     }
 }

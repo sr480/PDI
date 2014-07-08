@@ -16,7 +16,7 @@ namespace PDI.Communication
 
         private const int MAX_RESENDS = 3;
         private const int MAX_TIMEOUT = 500;
-        
+
         private int _resends = 0;
         private CRC16 _crcHelper;
         private SerialPort _port;
@@ -25,6 +25,11 @@ namespace PDI.Communication
         private int _bufReadCursor = 0;
         private System.Timers.Timer _timeout;
 
+        public bool TransmitAvailable
+        {
+            get { return _lastCommand == null; }
+        }
+
         public Port(string portName, int baudRate)
         {
             _crcHelper = new CRC16();
@@ -32,7 +37,7 @@ namespace PDI.Communication
             _timeout.Elapsed += _timeout_Elapsed;
             _port = new SerialPort(portName, baudRate);
             _port.DataReceived += _port_DataReceived;
-            _port.Open();            
+            _port.Open();
         }
 
         public void SendCommand(BaseCommand command)
@@ -42,7 +47,7 @@ namespace PDI.Communication
 
             _lastCommand = command;
             _respondeBuf = new byte[_lastCommand.DataLen];
-            
+
             _resends = 0;
 
             Send();
@@ -61,7 +66,7 @@ namespace PDI.Communication
             _resends++;
             Console.WriteLine("Отправка сообщения:");
             foreach (var bt in commandBuf)
-                Console.Write(bt.ToString("X2") + " ");            
+                Console.Write(bt.ToString("X2") + " ");
             Console.WriteLine("Попытка {0} из {1}", _resends, MAX_RESENDS);
         }
 
@@ -73,9 +78,9 @@ namespace PDI.Communication
                 Console.WriteLine("Получен неожиданный ответ");
                 return;
             }
-                        
+
             int len = _port.BytesToRead;
-            if(_bufReadCursor + len > _lastCommand.DataLen)
+            if (_bufReadCursor + len > _lastCommand.DataLen)
                 throw new Exception("Длина ответа превысила ожидаемую");
 
             int dataread = _port.Read(_respondeBuf, _bufReadCursor, len);
@@ -87,9 +92,9 @@ namespace PDI.Communication
                 Console.Write(_respondeBuf[pos].ToString("X2") + " ");
 
             _bufReadCursor += dataread;
-            
+
             Console.WriteLine(System.Text.Encoding.ASCII.GetString(_respondeBuf, 0, _bufReadCursor));
-            
+
             if (_bufReadCursor == _lastCommand.DataLen)
                 OnRespondeRecieved();
         }
@@ -105,7 +110,7 @@ namespace PDI.Communication
                 Resend();
                 return;
             }
-            _lastCommand.GenerateRespond(_respondeBuf);
+            _lastCommand.OnRespondRecieved(_respondeBuf);
         }
 
         void _timeout_Elapsed(object sender, System.Timers.ElapsedEventArgs e)

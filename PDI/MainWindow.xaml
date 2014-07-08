@@ -16,12 +16,12 @@
         </Grid.RowDefinitions>
         <StackPanel Grid.Column="1" Grid.RowSpan="3" Margin="3">
             <HeaderedContentControl Header="Порт:">
-                <ComboBox/>
+                <ComboBox ItemsSource="{Binding AvailablePorts}" SelectedValue="{Binding SelectedPort}"/>
             </HeaderedContentControl>
             <HeaderedContentControl Header="Скорость:">
                 <ComboBox/>
-            </HeaderedContentControl>
-            <Button Margin="0,3,0,0">Подключить</Button>
+            </HeaderedContentControl>                  
+            <Button Margin="0,3,0,0" Command="{Binding Connect_Disconnect}">Подключить/Отключить</Button>
             <GroupBox Header="Параметры испытания">
                 <StackPanel>
                     <HeaderedContentControl Header="Частота толкателя (Гц):">
@@ -82,7 +82,7 @@
                                    XMinimum="0"
                                    XMaximum="1000"
                                    XGridStep="50"
-                                   DataSource="123"
+                                   DataSource="{Binding CurrentValues}"
                                    />
     </Grid>
 </Window>

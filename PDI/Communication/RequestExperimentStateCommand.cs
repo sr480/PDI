@@ -13,13 +13,13 @@ namespace PDI.Communication
             get { return 1612; }
         }
 
-        public event RequestExperimentStateRecievedEventHandler RespondRecieved;
+        public event ExperimentStateRecievedEventHandler RespondRecieved;
 
         public RequestExperimentStateCommand() : base(new byte[] { 0x01 }) { }
 
-        public override void GenerateRespond(byte[] data)
+        public override void OnRespondRecieved(byte[] data)
         {
-            RequestExperimentStateRecievedEventArgs ea = new RequestExperimentStateRecievedEventArgs
+            ExperimentStateRecievedEventArgs ea = new ExperimentStateRecievedEventArgs
                 (
                     GetTensos(data),
                     GetTermo(data, 0),
@@ -42,16 +42,16 @@ namespace PDI.Communication
         }
         private double GetTermo(byte[] data, int termoId)
         {
-            return (data[1600 + termoId * 2] << 8) + data[1600 + termoId * 2 + 1];
+            return BytesToTemperature.GetTemperature(data[1600 + termoId * 2], data[1600 + termoId * 2 + 1]);
         }
         private double GetPosition(byte[] data)
         {
             return ((data[1609] << 8) + data[1610]) / 200.0; //1000 импульсов на 5 мм
         }
     }
-    public delegate void RequestExperimentStateRecievedEventHandler(object sender, RequestExperimentStateRecievedEventArgs eventArgs);
+    public delegate void ExperimentStateRecievedEventHandler(object sender, ExperimentStateRecievedEventArgs eventArgs);
 
-    public class RequestExperimentStateRecievedEventArgs : EventArgs
+    public class ExperimentStateRecievedEventArgs : EventArgs
     {
         public double[] Tensos { get; private set; }
         public double TD1 { get; private set; }
@@ -60,7 +60,7 @@ namespace PDI.Communication
         public double TD4 { get; private set; }
         public double Position { get; private set; }
 
-        public RequestExperimentStateRecievedEventArgs(double[] tensos,
+        public ExperimentStateRecievedEventArgs(double[] tensos,
                                                         double td1,
             double td2,
             double td3,

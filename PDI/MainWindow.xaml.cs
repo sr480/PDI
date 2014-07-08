@@ -23,6 +23,7 @@ namespace PDI
         public MainWindow()
         {
             InitializeComponent();
+            DataContext = new MainViewModel();
         }
     }
 }

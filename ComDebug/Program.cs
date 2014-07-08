@@ -19,7 +19,7 @@ namespace ComDebug
             Console.ReadKey();
         }
 
-        static void cmd_RespondRecieved(object sender, PDI.Communication.RequestExperimentStateRecievedEventArgs eventArgs)
+        static void cmd_RespondRecieved(object sender, PDI.Communication.ExperimentStateRecievedEventArgs eventArgs)
         {
             Console.WriteLine("Ответ получен");
         }

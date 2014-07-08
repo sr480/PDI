@@ -19,6 +19,6 @@ namespace PDI.Communication
             Message = message;
         }
 
-        public abstract void GenerateRespond(byte[] data);
+        public abstract void OnRespondRecieved(byte[] data);
     }
 }

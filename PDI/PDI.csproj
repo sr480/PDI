@@ -53,6 +53,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Communication\BytesToTemperature.cs" />
+    <Compile Include="Communication\RequestCurrentStateCommand.cs" />
+    <Compile Include="Tools\Command.cs" />
+    <Compile Include="Tools\ViewableCollection.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -62,7 +66,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Communication\BaseCommand.cs" />
-    <Compile Include="Communication\BaseRespond.cs" />
     <Compile Include="Communication\CRC16.cs" />
     <Compile Include="Communication\Port.cs" />
     <Compile Include="Communication\RequestExperimentStateCommand.cs" />
@@ -73,6 +76,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Model\CurrentValue.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

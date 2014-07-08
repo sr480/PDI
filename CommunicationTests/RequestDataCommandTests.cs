@@ -28,7 +28,7 @@ namespace CommunicationTests
         //        Assert.Fail("Ответ не получен");
         //}
 
-        void cmd_RespondRecieved(object sender, PDI.Communication.RequestExperimentStateRecievedEventArgs eventArgs)
+        void cmd_RespondRecieved(object sender, PDI.Communication.ExperimentStateRecievedEventArgs eventArgs)
         {
             respondRecieved = true;
         }
