@@ -10,6 +10,9 @@ namespace ComDebug
     {
         static void Main(string[] args)
         {
+            var crc = new PDI.Communication.CRC16();
+            var c = crc.Calculate(new byte[] {0x31, 0x45});
+
             PDI.Communication.Port prt = new PDI.Communication.Port("COM4", 9600);
             PDI.Communication.RequestExperimentStateCommand cmd = new PDI.Communication.RequestExperimentStateCommand();
             cmd.RespondRecieved += cmd_RespondRecieved;

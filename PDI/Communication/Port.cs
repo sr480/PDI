@@ -37,7 +37,7 @@ namespace PDI.Communication
 
             _lastCommand = command;
             _respondeBuf = new byte[_lastCommand.DataLen];
-            
+
             _resends = 0;
 
             Send();
@@ -69,9 +69,9 @@ namespace PDI.Communication
                 Console.WriteLine("Получен неожиданный ответ");
                 return;
             }
-                        
+
             int len = _port.BytesToRead;
-            if(_bufReadCursor + len > _lastCommand.DataLen)
+            if (_bufReadCursor + len > _lastCommand.DataLen)
                 throw new Exception("Длина ответа превысила ожидаемую");
 
             int dataread = _port.Read(_respondeBuf, _bufReadCursor, len);
@@ -91,6 +91,15 @@ namespace PDI.Communication
         {
             int len = _respondeBuf.Length;
             byte[] cCrc = _crcHelper.Calculate(_respondeBuf, len - 2);
+            Console.WriteLine();
+            Console.WriteLine();
+            Console.WriteLine();
+            Console.WriteLine();
+            Console.WriteLine();
+            Console.WriteLine();
+            for (int pos = 0; pos < len; pos++)
+                Console.Write(_respondeBuf[pos].ToString("X2"));
+
             if (_respondeBuf[len - 2] != cCrc[0] |
                _respondeBuf[len - 1] != cCrc[1])
             {
@@ -98,6 +107,9 @@ namespace PDI.Communication
                 Resend();
                 return;
             }
+
+
+
             _lastCommand.GenerateRespond(_respondeBuf);
         }
 
