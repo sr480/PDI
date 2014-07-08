@@ -37,7 +37,7 @@ namespace PDI.Communication
         {
             double[] result = new double[800];
             for (int pos = 0; pos < 800; pos++)
-                result[pos] = ((data[pos * 2] << 8) + data[pos * 2 + 1]);
+                result[pos] = ((data[pos * 2] << 8) + data[pos * 2 + 1]) / 1024.0 * 600.0;
             return result;
         }
         private double GetTermo(byte[] data, int termoId)

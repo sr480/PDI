@@ -134,9 +134,11 @@ namespace ChartControl
 
         private void ReadRawData()
         {
+            var start = DateTime.Now;
             rawData = new List<RawValueInfo>();
             if (DataSource == null)
                 return;
+                        
             foreach (var item in (IEnumerable)DataSource)
             {
                 try
@@ -154,6 +156,7 @@ namespace ChartControl
                 }
                 catch { }
             }
+            Console.WriteLine("ReadData: {0} ms", (DateTime.Now - start).Milliseconds);
         }
         protected override void OnPropertyChanged(DependencyPropertyChangedEventArgs e)
         {
@@ -212,10 +215,21 @@ namespace ChartControl
         }
         public void RedrawAll()
         {
+            var start = DateTime.Now;
             RedrawPlot(plot.ActualWidth, plot.ActualHeight);
+            Console.WriteLine("RedrawPlot: {0} ms", (DateTime.Now - start).Milliseconds);
+
+            start = DateTime.Now;
             RedrawYAxis(yAxisValues.ActualHeight);
+            Console.WriteLine("RedrawYAxis: {0} ms", (DateTime.Now - start).Milliseconds);
+
+            start = DateTime.Now;
             RedrawXAxis(xAxisValues.ActualWidth);
+            Console.WriteLine("RedrawXAxis: {0} ms", (DateTime.Now - start).Milliseconds);
+
+            start = DateTime.Now;
             RedrawGrid(plotGrid.ActualWidth, plotGrid.ActualHeight);
+            Console.WriteLine("RedrawGrid: {0} ms", (DateTime.Now - start).Milliseconds);
         }
 
         //Redraw plot
@@ -226,6 +240,8 @@ namespace ChartControl
                 return;
 
             double yTransform = height / (YMaximum - YMinimum);
+            if (double.IsInfinity(yTransform))
+                yTransform = 1;
             double xTransform = width / (XMaximum - XMinimum);
 
             var groupedData = rawData.GroupBy(g => g.ValueMember);

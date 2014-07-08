@@ -65,6 +65,9 @@ namespace PDI.Tools
 
         protected override void OnCollectionChanged(NotifyCollectionChangedEventArgs e)
         {
+            if (suspendNotification)
+                return;
+
             if (SynchronizationContext.Current == _synchronizationContext)
             {
                 // Execute the CollectionChanged event on the current thread

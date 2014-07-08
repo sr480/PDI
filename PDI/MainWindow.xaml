@@ -79,10 +79,15 @@
                                    YMinimum="0"
                                    YMaximum="600"
                                    YGridStep="30"
+                                   AutoCalculateAxisLimits="False"
                                    XMinimum="0"
                                    XMaximum="1000"
                                    XGridStep="50"
                                    DataSource="{Binding CurrentValues}"
-                                   />
+                                   DataMember="TimeSpan">
+            <ChartControl:ChartControl.ValueMembers>
+                <ChartControl:ValueMemberDefinition Color="Red" Member="Weight"/>
+            </ChartControl:ChartControl.ValueMembers>
+        </ChartControl:ChartControl>
     </Grid>
 </Window>

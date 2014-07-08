@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
@@ -9,6 +10,8 @@ namespace PDI.Tools
 {
     class Command : ICommand
     {
+        private SynchronizationContext _synchronizationContext = SynchronizationContext.Current;
+
         readonly Action<object> _executeAction;
         readonly Predicate<object> _canExecute;
 
@@ -44,8 +47,16 @@ namespace PDI.Tools
         /// </summary>
         public void RaiseCanExecuteChanged()
         {
+            if (SynchronizationContext.Current != _synchronizationContext)
+                RaiseCanExecuteChangedSynced(null);
+            else
+                _synchronizationContext.Post(RaiseCanExecuteChangedSynced, null);
+        }
+        private void RaiseCanExecuteChangedSynced(object param)
+        {
             if (CanExecuteChanged != null)
                 CanExecuteChanged(this, new EventArgs());
         }
+
     }
 }

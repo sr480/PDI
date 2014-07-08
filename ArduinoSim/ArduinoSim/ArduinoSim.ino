@@ -1,4 +1,4 @@
-int speed = 9600;
+
 unsigned short crc_table[] =
 {
 0x0000, 0x8005, 0x800F, 0x000A, 0x801B, 0x001E, 0x0014, 0x8011, 0x8033, 0x0036,
@@ -30,7 +30,7 @@ unsigned short crc_table[] =
 
 void setup()
 {
-  Serial.begin(speed);
+  Serial.begin(115200);
   while(!Serial){;}
   //Serial.println("Begin transmission:");
 }

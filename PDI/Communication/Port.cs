@@ -15,7 +15,7 @@ namespace PDI.Communication
         }
 
         private const int MAX_RESENDS = 3;
-        private const int MAX_TIMEOUT = 500;
+        private const int MAX_TIMEOUT = 5000;
 
         private int _resends = 0;
         private CRC16 _crcHelper;
@@ -66,7 +66,7 @@ namespace PDI.Communication
             _resends++;
             Console.WriteLine("Отправка сообщения:");
             foreach (var bt in commandBuf)
-                Console.Write(bt.ToString("X2") + " ");
+               Console.Write(bt.ToString("X2") + " ");
             Console.WriteLine("Попытка {0} из {1}", _resends, MAX_RESENDS);
         }
 
@@ -87,30 +87,40 @@ namespace PDI.Communication
             if (dataread == 0)
                 return;
 
-            Console.WriteLine("Получено ссобщение:");
-            for (int pos = _bufReadCursor; pos < _bufReadCursor + dataread; pos++)
-                Console.Write(_respondeBuf[pos].ToString("X2") + " ");
-
             _bufReadCursor += dataread;
 
-            Console.WriteLine(System.Text.Encoding.ASCII.GetString(_respondeBuf, 0, _bufReadCursor));
-
             if (_bufReadCursor == _lastCommand.DataLen)
+            {
+                Console.WriteLine("Получено собщение:");
+                //for (int pos = 0; pos < _bufReadCursor; pos++)
+                //    Console.Write(_respondeBuf[pos].ToString("X2") + " ");
+
                 OnRespondeRecieved();
+            }
         }
 
         void OnRespondeRecieved()
         {
-            int len = _respondeBuf.Length;
-            byte[] cCrc = _crcHelper.Calculate(_respondeBuf, len - 2);
-            if (_respondeBuf[len - 2] != cCrc[0] |
-               _respondeBuf[len - 1] != cCrc[1])
+            if (!CheckRecievedPackage(_respondeBuf))
             {
                 Console.WriteLine("Ошибка контрольной суммы");
                 Resend();
-                return;
             }
-            _lastCommand.OnRespondRecieved(_respondeBuf);
+            else
+            {
+                _timeout.Stop();
+                _lastCommand.OnRespondRecieved(_respondeBuf);
+                _lastCommand = null;
+            }
+        }
+
+        bool CheckRecievedPackage(byte[] buf)
+        {
+            return true;
+
+            int len = buf.Length;
+            byte[] cCrc = _crcHelper.Calculate(buf, len - 2);
+            return buf[len - 2] == cCrc[0] & buf[len - 1] == cCrc[1];
         }
 
         void _timeout_Elapsed(object sender, System.Timers.ElapsedEventArgs e)

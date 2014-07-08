@@ -13,7 +13,7 @@ namespace PDI
         private SynchronizationContext _synchronizationContext = SynchronizationContext.Current;
 
         private string _State;
-        private const int BAUD_RATE = 9600;
+        private const int BAUD_RATE = 115200;
         private readonly Tools.ViewableCollection<string> _availablePorts;
         private string _SelectedPort;
         private readonly Tools.ViewableCollection<Model.CurrentValue> _currentValues;
@@ -58,23 +58,44 @@ namespace PDI
         
         public MainViewModel()
         {
+            Connect_Disconnect = new Tools.Command(x => Connect_DisconnectAction(), x => !String.IsNullOrEmpty(SelectedPort));
+
             _availablePorts = new Tools.ViewableCollection<string>();
-            _availablePorts.Fill(System.IO.Ports.SerialPort.GetPortNames());
+            _availablePorts.Fill(System.IO.Ports.SerialPort.GetPortNames());            
             SelectedPort = AvailablePorts.FirstOrDefault();
             
             _currentValues = new Tools.ViewableCollection<Model.CurrentValue>();
             
-            _dataRequestTimer = new System.Timers.Timer(1000);
+            _dataRequestTimer = new System.Timers.Timer(200);
             _dataRequestTimer.Elapsed += _dataRequestTimer_Elapsed;
             _dataRequestTimer.Start();
             
-            Connect_Disconnect = new Tools.Command(x => Connect_DisconnectAction(), x => !String.IsNullOrEmpty(SelectedPort));
+            
         }
 
         void _dataRequestTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
             if (_port == null)
                 return;
+
+            if(!_port.TransmitAvailable)
+                return;
+
+            var cmd = new Communication.RequestExperimentStateCommand();
+            cmd.RespondRecieved += cmd_RespondRecieved;
+            _port.SendCommand(cmd);
+
+            //_port = null;
+        }
+
+        void cmd_RespondRecieved(object sender, Communication.ExperimentStateRecievedEventArgs eventArgs)
+        {
+            List<Model.CurrentValue> values = new List<Model.CurrentValue>();
+            int div = 1;
+            for(int i = 0; i < eventArgs.Tensos.Length; i+=div) 
+                values.Add(new Model.CurrentValue(i * 1.25, eventArgs.Tensos[i]));
+            
+            CurrentValues.BulkFill(values);
         }
 
         private void Connect_DisconnectAction()
