@@ -49,7 +49,7 @@ namespace PDI.Communication
             return ((data[1609] << 8) + data[1610]) / 200.0; //1000 импульсов на 5 мм
         }
     }
-    public delegate void ExperimentStateRecievedEventHandler(object sender, ExperimentStateRecievedEventArgs eventArgs);
+    public delegate void ExperimentStateRecievedEventHandler(object sender, ExperimentStateRecievedEventArgs e);
 
     public class ExperimentStateRecievedEventArgs : EventArgs
     {

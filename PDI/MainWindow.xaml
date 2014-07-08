@@ -53,11 +53,11 @@
             </GroupBox>
         </StackPanel>
         <StackPanel Orientation="Horizontal" Grid.Column="0" Grid.Row="0">
-            <Label FontSize="25" BorderThickness="1" BorderBrush="Black" Margin="2">ПОЗ: 177,2 мм</Label>
-            <Label FontSize="25" BorderThickness="1" BorderBrush="Black" Margin="2">ТД1: 35 °С</Label>
-            <Label FontSize="25" BorderThickness="1" BorderBrush="Black" Margin="2">ТД2: 42 °С</Label>
-            <Label FontSize="25" BorderThickness="1" BorderBrush="Black" Margin="2">ТД3: 36 °С</Label>
-            <Label FontSize="25" BorderThickness="1" BorderBrush="Black" Margin="2">ТД4: 54 °С</Label>
+            <Label FontSize="20" VerticalAlignment="Center" BorderThickness="1" BorderBrush="Black" Margin="2" Width="160" Content="{Binding Position, FallbackValue='ПОЗ: 175.23 мм'}"/>
+            <Label FontSize="20" VerticalAlignment="Center" BorderThickness="1" BorderBrush="Black" Margin="2" Width="120" Content="{Binding TD1, FallbackValue='ТД1: 35.2 °С'}"/>
+            <Label FontSize="20" VerticalAlignment="Center" BorderThickness="1" BorderBrush="Black" Margin="2" Width="120" Content="{Binding TD2, FallbackValue='ТД2: 38.3 °С'}"/>
+            <Label FontSize="20" VerticalAlignment="Center" BorderThickness="1" BorderBrush="Black" Margin="2" Width="120" Content="{Binding TD3, FallbackValue='ТД3: 39.8 °С'}"/>
+            <Label FontSize="20" VerticalAlignment="Center" BorderThickness="1" BorderBrush="Black" Margin="2" Width="120" Content="{Binding TD4, FallbackValue='ТД4: 37.9 °С'}"/>
         </StackPanel>
         <ChartControl:ChartControl Grid.Column="0" Grid.Row="1" VerticalAlignment="Stretch"
                                    Title="Ход испытания:"

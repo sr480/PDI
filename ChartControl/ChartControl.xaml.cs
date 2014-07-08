@@ -427,6 +427,8 @@ namespace ChartControl
                 Foreground = Brushes.Black,
                 FontWeight = FontWeights.Bold
             });
+
+            
         }
 
         double? GetValueY(ValueMemberDefinition vm, double x)
