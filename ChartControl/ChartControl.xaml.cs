@@ -22,8 +22,10 @@ namespace ChartControl
     /// </summary>
     public partial class ChartControl : UserControl
     {
+        private Line _hLine;
         public static readonly DependencyProperty TitleProperty =
             DependencyProperty.Register("Title", typeof(string), typeof(ChartControl), new UIPropertyMetadata("Title"));
+        private Line _vLine;
         public static readonly DependencyProperty YLableProperty =
             DependencyProperty.Register("YLable", typeof(string), typeof(ChartControl), new UIPropertyMetadata("Y Lable"));
         public static readonly DependencyProperty XLableProperty =
@@ -51,6 +53,12 @@ namespace ChartControl
 
         double _height;
         double _width;
+
+        double _mouse_X;
+        double _mouse_Y;
+
+        Dictionary<ValueMemberDefinition, TextBlock> _textBoxesForValueMembers;
+        TextBlock _XValueTextBox;
 
         public bool AutoCalculateAxisLimits
         {
@@ -123,6 +131,7 @@ namespace ChartControl
 
         public ChartControl()
         {
+            _textBoxesForValueMembers = new Dictionary<ValueMemberDefinition, TextBlock>();
             ValueMembers = new ObservableCollection<ValueMemberDefinition>();
             InitializeComponent();
             plotGrid.SizeChanged += new SizeChangedEventHandler(plotGrid_SizeChanged);
@@ -138,7 +147,7 @@ namespace ChartControl
             rawData = new List<RawValueInfo>();
             if (DataSource == null)
                 return;
-                        
+
             foreach (var item in (IEnumerable)DataSource)
             {
                 try
@@ -179,7 +188,7 @@ namespace ChartControl
                 e.Property == XGridStepProperty |
                 e.Property == YGridStepProperty)
                 RedrawAll();
-                
+
         }
 
         void DataSourceChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -230,6 +239,10 @@ namespace ChartControl
             start = DateTime.Now;
             RedrawGrid(plotGrid.ActualWidth, plotGrid.ActualHeight);
             Console.WriteLine("RedrawGrid: {0} ms", (DateTime.Now - start).Milliseconds);
+
+            start = DateTime.Now;
+            DrawMouseCross();
+            Console.WriteLine("DrawMouseCross: {0} ms", (DateTime.Now - start).Milliseconds);
         }
 
         //Redraw plot
@@ -242,7 +255,10 @@ namespace ChartControl
             double yTransform = height / (YMaximum - YMinimum);
             if (double.IsInfinity(yTransform))
                 yTransform = 1;
+
             double xTransform = width / (XMaximum - XMinimum);
+            if (double.IsInfinity(xTransform))
+                xTransform = 1;
 
             var groupedData = rawData.GroupBy(g => g.ValueMember);
             foreach (var grp in groupedData)
@@ -390,47 +406,75 @@ namespace ChartControl
 
         private void plotTarget_MouseMove(object sender, MouseEventArgs e)
         {
-            plotTarget.Children.Clear();
-            values.Children.Clear();
+            _mouse_X = e.GetPosition(plotTarget).X;
+            _mouse_Y = e.GetPosition(plotTarget).Y;
+            DrawMouseCross();
+        }
 
+        private void DrawMouseCross()
+        {
             var axisStroke = Brushes.Gray;
 
-            var x = e.GetPosition(plotTarget).X;
-            var y = e.GetPosition(plotTarget).Y;
             //Draw vertical line
-            plotTarget.Children.Add(new Line() { X1 = x, Y1 = 0, X2 = x, Y2 = plotTarget.ActualHeight, Stroke = axisStroke });
+            if (_vLine == null)
+            {
+                _vLine = new Line() { X1 = _mouse_X, Y1 = 0, X2 = _mouse_X, Y2 = plotTarget.ActualHeight, Stroke = axisStroke };
+                plotTarget.Children.Add(_vLine);
+            }
+            else
+            {
+                _vLine.X1 = _mouse_X;
+                _vLine.X2 = _mouse_X;
+                _vLine.Y1 = 0;
+                _vLine.Y2 = plotTarget.ActualHeight;
+            }
 
             //Draw horisontal line
-            plotTarget.Children.Add(new Line() { X1 = 0, Y1 = y, X2 = plotTarget.ActualWidth, Y2 = y, Stroke = axisStroke });
+            if (_hLine == null)
+            {
+                _hLine = new Line() { X1 = _mouse_X, Y1 = 0, X2 = _mouse_X, Y2 = plotTarget.ActualHeight, Stroke = axisStroke };
+                plotTarget.Children.Add(_hLine);
+            }
+            else
+            {
+                _hLine.X1 = 0;
+                _hLine.X2 = plotTarget.ActualWidth;
+                _hLine.Y1 = _mouse_Y;
+                _hLine.Y2 = _mouse_Y;
+            }
 
-            var xVal = (XMaximum - XMinimum) / plot.ActualWidth * x + XMinimum;
+            var xVal = (XMaximum - XMinimum) / plot.ActualWidth * _mouse_X + XMinimum;
 
             for (int i = 0; i < ValueMembers.Count; i++)
             {
                 double? valueY = GetValueY(ValueMembers[i], xVal);
-                if (valueY != null)
+                if (!_textBoxesForValueMembers.ContainsKey(ValueMembers[i]))
                 {
-                    TextBlock textBlock = new TextBlock()
-                    {
-                        Margin = new Thickness(2, 2, 2, 2), //new Thickness(x + 2, y - 16 * (ValueMembers.Count - i + 1), 0, 0),
-                        Text = valueY.Value.ToString("F"),
-                        Foreground = ValueMembers[i].Color,
-                        FontWeight = FontWeights.Bold
-                    };
+                    var textBlock = new TextBlock()
+                        {
+                            Margin = new Thickness(2, 2, 2, 2),
+                            Foreground = ValueMembers[i].Color,
+                            FontWeight = FontWeights.Bold
+                        };
+                    _textBoxesForValueMembers.Add(ValueMembers[i], textBlock);
                     values.Children.Add(textBlock);
                 }
+
+                _textBoxesForValueMembers[ValueMembers[i]].Text = valueY == null ? "" : valueY.Value.ToString("F");
             }
-            values.Children.Add(new TextBlock()
+
+            if (_XValueTextBox == null)
             {
-                Margin = new Thickness(2, 2, 2, 2), //new Thickness(x + 2, y - 16, 0, 0),
-                Text = xVal.ToString("F"),
-                Foreground = Brushes.Black,
-                FontWeight = FontWeights.Bold
-            });
-
-            
+                _XValueTextBox = new TextBlock()
+                {
+                    Margin = new Thickness(2, 2, 2, 2),
+                    Foreground = Brushes.Black,
+                    FontWeight = FontWeights.Bold
+                };
+                values.Children.Add(_XValueTextBox);
+            }
+            _XValueTextBox.Text = xVal.ToString("F");
         }
-
         double? GetValueY(ValueMemberDefinition vm, double x)
         {
             if (rawData == null)

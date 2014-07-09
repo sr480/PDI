@@ -116,8 +116,6 @@ namespace PDI.Communication
 
         bool CheckRecievedPackage(byte[] buf)
         {
-            return true;
-
             int len = buf.Length;
             byte[] cCrc = _crcHelper.Calculate(buf, len - 2);
             return buf[len - 2] == cCrc[0] & buf[len - 1] == cCrc[1];

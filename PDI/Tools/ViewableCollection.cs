@@ -22,7 +22,7 @@ namespace PDI.Tools
 
         private SynchronizationContext _synchronizationContext = SynchronizationContext.Current;
         private bool suspendNotification = false;
-
+        
         public void Fill(IEnumerable<T> items)
         {
             if (items == null)
@@ -82,9 +82,11 @@ namespace PDI.Tools
 
         private void RaiseCollectionChanged(object param)
         {
-            // We are in the creator thread, call the base implementation directly
-            if (!suspendNotification)
-                base.OnCollectionChanged((NotifyCollectionChangedEventArgs)param);
+            lock (this)
+            {
+                if (!suspendNotification)
+                    base.OnCollectionChanged((NotifyCollectionChangedEventArgs)param);
+            }
         }
 
     }

@@ -20,7 +20,7 @@
             </HeaderedContentControl>
             <HeaderedContentControl Header="Скорость:">
                 <ComboBox/>
-            </HeaderedContentControl>                  
+            </HeaderedContentControl>
             <Button Margin="0,3,0,0" Command="{Binding Connect_Disconnect}">Подключить/Отключить</Button>
             <GroupBox Header="Параметры испытания">
                 <StackPanel>
@@ -48,16 +48,16 @@
                             <Label HorizontalAlignment="Right">1000</Label>
                         </StackPanel>
                     </HeaderedContentControl>
-                    <Button>Запустить испытание</Button>
+                    <Button Command="{Binding StartExperiment}">Запустить/прервать испытание</Button>
                 </StackPanel>
             </GroupBox>
         </StackPanel>
         <StackPanel Orientation="Horizontal" Grid.Column="0" Grid.Row="0">
-            <Label FontSize="20" VerticalAlignment="Center" BorderThickness="1" BorderBrush="Black" Margin="2" Width="160" Content="{Binding Position, FallbackValue='ПОЗ: 175.23 мм'}"/>
-            <Label FontSize="20" VerticalAlignment="Center" BorderThickness="1" BorderBrush="Black" Margin="2" Width="120" Content="{Binding TD1, FallbackValue='ТД1: 35.2 °С'}"/>
-            <Label FontSize="20" VerticalAlignment="Center" BorderThickness="1" BorderBrush="Black" Margin="2" Width="120" Content="{Binding TD2, FallbackValue='ТД2: 38.3 °С'}"/>
-            <Label FontSize="20" VerticalAlignment="Center" BorderThickness="1" BorderBrush="Black" Margin="2" Width="120" Content="{Binding TD3, FallbackValue='ТД3: 39.8 °С'}"/>
-            <Label FontSize="20" VerticalAlignment="Center" BorderThickness="1" BorderBrush="Black" Margin="2" Width="120" Content="{Binding TD4, FallbackValue='ТД4: 37.9 °С'}"/>
+            <TextBlock FontSize="20" VerticalAlignment="Center"  Margin="2" Width="160" Text="{Binding Position, FallbackValue='ПОЗ: 175.23 мм'}"/>
+            <TextBlock FontSize="20" VerticalAlignment="Center"  Margin="2" Width="120" Text="{Binding TD1, FallbackValue='ТД1: 35.2 °С'}"/>
+            <TextBlock FontSize="20" VerticalAlignment="Center"  Margin="2" Width="120" Text="{Binding TD2, FallbackValue='ТД2: 38.3 °С'}"/>
+            <TextBlock FontSize="20" VerticalAlignment="Center"  Margin="2" Width="120" Text="{Binding TD3, FallbackValue='ТД3: 39.8 °С'}"/>
+            <TextBlock FontSize="20" VerticalAlignment="Center"  Margin="2" Width="120" Text="{Binding TD4, FallbackValue='ТД4: 37.9 °С'}"/>
         </StackPanel>
         <ChartControl:ChartControl Grid.Column="0" Grid.Row="1" VerticalAlignment="Stretch"
                                    Title="Ход испытания:"
@@ -69,9 +69,12 @@
                                    XMinimum="0"
                                    XMaximum="3000"
                                    XGridStep="50"
-                                   DataSource="123"
-                                   />
-
+                                   DataSource="{Binding CurrentValues}"
+                                   DataMember="TimeSpan">
+            <ChartControl:ChartControl.ValueMembers>
+                <ChartControl:ValueMemberDefinition Color="Blue" Member="Weight"/>
+            </ChartControl:ChartControl.ValueMembers>
+        </ChartControl:ChartControl>
         <ChartControl:ChartControl Grid.Column="0" Grid.Row="2" VerticalAlignment="Stretch"
                                    Title="Текущее показание:"
                                    YLable="Усилие (кг)"

@@ -30,9 +30,30 @@ unsigned short crc_table[] =
 
 void setup()
 {
-  Serial.begin(115200);
+  Serial.begin(1000000);
   while(!Serial){;}
-  //Serial.println("Begin transmission:");
+  /*Serial.println("Begin transmission:");
+  
+  byte arr1[] = {0x31, 0x78, 0xF2, 0xA9};
+  unsigned short crc = calcCrc(arr1, 1);
+  Serial.println("CRC for: 0x31");
+  Serial.print(String((byte)(crc>>8), HEX));
+  Serial.println(String((byte)(crc), HEX));
+  
+  crc = calcCrc(arr1, 2);
+  Serial.println("CRC for: 0x3178");
+  Serial.print(String((byte)(crc>>8), HEX));
+  Serial.println(String((byte)(crc), HEX));
+  
+  crc = calcCrc(arr1, 3);
+  Serial.println("CRC for: 0x3178F2");
+  Serial.print(String((byte)(crc>>8), HEX));
+  Serial.println(String((byte)(crc), HEX));
+  
+  crc = calcCrc(arr1, 4);
+  Serial.println("CRC for: 0x3178F2A9");
+  Serial.print(String((byte)(crc>>8), HEX));
+  Serial.println(String((byte)(crc), HEX));*/
 }
 void loop()
 {
@@ -54,6 +75,10 @@ void loop()
     {
       simulateDataRespond();      
     }    
+    if(inByte == 0x03)
+    {
+      simulateDataRespondShort();      
+    }  
   }
 }
 
@@ -67,9 +92,25 @@ void simulateDataRespond()
     data[i*2+1] = (byte)(rd);
   }  
   unsigned short crc = calcCrc(data, 1610);
-  data[1611] = (byte)(crc>>8);
-  data[1612] = (byte)(crc);
+  data[1610] = (byte)(crc>>8);
+  data[1611] = (byte)(crc);
   for(int i = 0; i < 1612; i ++)
+    Serial.write(data[i]);
+}
+
+void simulateDataRespondShort()
+{
+  byte data[10];
+  for(int i = 0; i < 4; i ++)
+  {
+    int rd = analogRead(A0);
+    data[i*2] = (byte)(rd>>8);
+    data[i*2+1] = (byte)(rd);
+  }  
+  unsigned short crc = calcCrc(data, 8);
+  data[8] = (byte)(crc>>8);
+  data[9] = (byte)(crc);
+  for(int i = 0; i < 10; i ++)
     Serial.write(data[i]);
 }
 

@@ -9,10 +9,10 @@ namespace CommunicationTests
         [TestMethod]
         public void SingleByteTest()
         {
-            byte[] msg = new byte[] { 0x45 };
+            byte[] msg = new byte[] { 0x31 };
             var target = new PDI.Communication.CRC16();
             var result = target.Calculate(msg);
-            if(result[0] != 0x81 & result[1] != 0x9d)
+            if(result[0] != 0x80 & result[1] != 0xa5)
                 Assert.Fail("Контрольная сумма не сошлась");
         }
 
