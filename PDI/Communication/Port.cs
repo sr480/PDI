@@ -15,8 +15,9 @@ namespace PDI.Communication
         }
 
         private const int MAX_RESENDS = 3;
-        private const int MAX_TIMEOUT = 5000;
+        private const int MAX_TIMEOUT = 1000;
 
+        private bool _debugMode = false;
         private int _resends = 0;
         private CRC16 _crcHelper;
         private SerialPort _port;
@@ -31,7 +32,12 @@ namespace PDI.Communication
         }
 
         public Port(string portName, int baudRate)
+            : this(portName, baudRate, false)
+        { }
+
+        public Port(string portName, int baudRate, bool debugMode) 
         {
+            _debugMode = debugMode;
             _crcHelper = new CRC16();
             _timeout = new System.Timers.Timer(MAX_TIMEOUT);
             _timeout.Elapsed += _timeout_Elapsed;
@@ -53,6 +59,9 @@ namespace PDI.Communication
             Send();
         }
 
+        public void CancelLastTransmit()
+        { _lastCommand = null; }
+
         private void Send()
         {
             _bufReadCursor = 0;
@@ -62,7 +71,8 @@ namespace PDI.Communication
             _crcHelper.Calculate(_lastCommand.Message).CopyTo(commandBuf, _lastCommand.Message.Length);
 
             _port.Write(commandBuf, 0, commandBuf.Length);
-            _timeout.Start();
+            if(!_debugMode)
+                _timeout.Start();
             _resends++;
             Console.WriteLine("Отправка сообщения:");
             foreach (var bt in commandBuf)
@@ -89,11 +99,19 @@ namespace PDI.Communication
 
             _bufReadCursor += dataread;
 
+            if(_debugMode)
+            {
+                for (int pos = _bufReadCursor - dataread; pos < _bufReadCursor; pos++)
+                    Console.Write(_respondeBuf[pos].ToString("X2") + " ");
+                Console.WriteLine();
+                return;
+            }
+            
             if (_bufReadCursor == _lastCommand.DataLen)
             {
                 Console.WriteLine("Получено собщение:");
-                //for (int pos = 0; pos < _bufReadCursor; pos++)
-                //    Console.Write(_respondeBuf[pos].ToString("X2") + " ");
+                for (int pos = 0; pos < _bufReadCursor; pos++)
+                    Console.Write(_respondeBuf[pos].ToString("X2") + " ");
 
                 OnRespondeRecieved();
             }

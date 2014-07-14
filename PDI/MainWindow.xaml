@@ -2,7 +2,11 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:ChartControl="clr-namespace:ChartControl;assembly=ChartControl" x:Class="PDI.MainWindow"
-        Title="MainWindow" Height="560" Width="960" MinHeight="560" MinWidth="960">
+        xmlns:Tools="clr-namespace:PDI.Tools"
+        Title="MainWindow" Height="660" Width="960" MinHeight="660" MinWidth="960">
+    <Window.Resources>
+        <Tools:BooleanInverter x:Key="BoolInverter"/>
+    </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
@@ -18,37 +22,96 @@
             <HeaderedContentControl Header="Порт:">
                 <ComboBox ItemsSource="{Binding AvailablePorts}" SelectedValue="{Binding SelectedPort}"/>
             </HeaderedContentControl>
-            <HeaderedContentControl Header="Скорость:">
-                <ComboBox/>
-            </HeaderedContentControl>
             <Button Margin="0,3,0,0" Command="{Binding Connect_Disconnect}">Подключить/Отключить</Button>
             <GroupBox Header="Параметры испытания">
                 <StackPanel>
                     <HeaderedContentControl Header="Частота толкателя (Гц):">
                         <StackPanel>
-                            <Slider Minimum="5" Maximum="25" SmallChange="1"></Slider>
-                            <Label HorizontalAlignment="Right">5 Гц</Label>
+                            <Slider Minimum="5" Maximum="25" IsEnabled="{Binding IsExperimentMode, Converter={StaticResource BoolInverter}}" Value="{Binding ExperimentFrequency, UpdateSourceTrigger=PropertyChanged}"></Slider>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                                <TextBox Name="tb_ExperimentFrequency" IsEnabled="{Binding IsExperimentMode, Converter={StaticResource BoolInverter}}" Width="150" TextAlignment="Right">
+                                    <TextBox.Text>
+                                        <Binding Path="ExperimentFrequency" UpdateSourceTrigger="PropertyChanged">
+                                            <Binding.ValidationRules>
+                                                <Tools:ValueLimitRule Min="5" Max="25"/>
+                                            </Binding.ValidationRules>
+                                        </Binding>
+                                    </TextBox.Text>
+                                </TextBox>
+                                <Label HorizontalAlignment="Right">Гц</Label>
+                            </StackPanel>
+                            <TextBlock HorizontalAlignment="Right" Foreground="Red" Text="{Binding (Validation.Errors)[0].ErrorContent, ElementName=tb_ExperimentFrequency}"/>
                         </StackPanel>
                     </HeaderedContentControl>
                     <HeaderedContentControl Header="Максимальное усилие (кг):">
                         <StackPanel>
-                            <Slider Minimum="10" Maximum="600" SmallChange="1"></Slider>
-                            <Label HorizontalAlignment="Right">10 кг</Label>
+                            <Slider Minimum="80" Maximum="600" SmallChange="1" IsEnabled="{Binding IsExperimentMode, Converter={StaticResource BoolInverter}}" Value="{Binding ExperimentWeight, UpdateSourceTrigger=PropertyChanged}"></Slider>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                                <TextBox Name="tb_ExperimentWeight" IsEnabled="{Binding IsExperimentMode, Converter={StaticResource BoolInverter}}" Width="150" TextAlignment="Right">
+                                    <TextBox.Text>
+                                        <Binding Path="ExperimentWeight" UpdateSourceTrigger="PropertyChanged">
+                                            <Binding.ValidationRules>
+                                                <Tools:ValueLimitRule Min="80" Max="600"/>
+                                            </Binding.ValidationRules>
+                                        </Binding>
+                                    </TextBox.Text>
+                                </TextBox>
+                                <Label HorizontalAlignment="Right">кг</Label>
+                            </StackPanel>
+                            <TextBlock HorizontalAlignment="Right" Foreground="Red" Text="{Binding (Validation.Errors)[0].ErrorContent, ElementName=tb_ExperimentWeight}"/>
                         </StackPanel>
                     </HeaderedContentControl>
                     <HeaderedContentControl Header="Температура (°C):">
                         <StackPanel>
-                            <Slider Minimum="20" Maximum="70" SmallChange="1"></Slider>
-                            <Label HorizontalAlignment="Right">70 °</Label>
+                            <Slider Minimum="10" Maximum="70" SmallChange="1" IsEnabled="{Binding IsExperimentMode, Converter={StaticResource BoolInverter}}" Value="{Binding ExperimentTemperature, UpdateSourceTrigger=PropertyChanged}"></Slider>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                                <TextBox Name="tb_ExperimentTemperature" IsEnabled="{Binding IsExperimentMode, Converter={StaticResource BoolInverter}}" Width="150" TextAlignment="Right">
+                                    <TextBox.Text>
+                                        <Binding Path="ExperimentTemperature" UpdateSourceTrigger="PropertyChanged">
+                                            <Binding.ValidationRules>
+                                                <Tools:ValueLimitRule Min="10" Max="70"/>
+                                            </Binding.ValidationRules>
+                                        </Binding>
+                                    </TextBox.Text>
+                                </TextBox>
+                                <Label HorizontalAlignment="Right">°C</Label>
+                            </StackPanel>
+                            <TextBlock HorizontalAlignment="Right" Foreground="Red" Text="{Binding (Validation.Errors)[0].ErrorContent, ElementName=tb_ExperimentTemperature}"/>
                         </StackPanel>
                     </HeaderedContentControl>
-                    <HeaderedContentControl Header="Длительность (циклы):">
+                    <HeaderedContentControl Header="Циклов приложения нагрузки:">
                         <StackPanel>
-                            <Slider Minimum="20" Maximum="70" SmallChange="1"></Slider>
-                            <Label HorizontalAlignment="Right">1000</Label>
+                            <TextBox Name="tb_ExperimentDuration" IsEnabled="{Binding IsExperimentMode, Converter={StaticResource BoolInverter}}" Width="150" TextAlignment="Right" HorizontalAlignment="Left">
+                                <TextBox.Text>
+                                    <Binding Path="ExperimentDuration" UpdateSourceTrigger="PropertyChanged">
+                                        <Binding.ValidationRules>
+                                            <Tools:ValueLimitRule Min="0" Max="16777215"/>
+                                        </Binding.ValidationRules>
+                                    </Binding>
+                                </TextBox.Text>
+                            </TextBox>
+                            <Label HorizontalAlignment="Right">(0 для бесконечного цикла)</Label>
+                            <TextBlock HorizontalAlignment="Right" Foreground="Red" Text="{Binding (Validation.Errors)[0].ErrorContent, ElementName=tb_ExperimentDuration}"/>
                         </StackPanel>
                     </HeaderedContentControl>
                     <Button Command="{Binding StartExperiment}">Запустить/прервать испытание</Button>
+                </StackPanel>
+            </GroupBox>
+            <GroupBox Header="Настройка ШД">
+                <StackPanel>
+                    <HeaderedContentControl Header="Период (мкс)">
+                        <StackPanel>
+                            <Slider Minimum="200" Maximum="51000" Value="{Binding Speed, UpdateSourceTrigger=PropertyChanged}"></Slider>
+                            <TextBlock Text="{Binding Speed}" HorizontalAlignment="Right"/>
+                        </StackPanel>
+                    </HeaderedContentControl>
+                    <HeaderedContentControl Header="Ускорение (мкс за шаг)">
+                        <StackPanel>
+                            <Slider Minimum="200" Maximum="51000" Value="{Binding Acceleration, UpdateSourceTrigger=PropertyChanged}"></Slider>
+                            <TextBlock Text="{Binding Acceleration}" HorizontalAlignment="Right"/>
+                        </StackPanel>
+                    </HeaderedContentControl>
+                    <Button Command="{Binding ApplyTuning}">Применить</Button>
                 </StackPanel>
             </GroupBox>
         </StackPanel>
@@ -61,13 +124,13 @@
         </StackPanel>
         <ChartControl:ChartControl Grid.Column="0" Grid.Row="1" VerticalAlignment="Stretch"
                                    Title="Ход испытания:"
-                                   YLable="Положение стола (мм)"
+                                   YLable="Остаточная деформация (мм)"
                                    XLable="Циклов"
                                    YMinimum="0"
                                    YMaximum="220"
                                    YGridStep="10"
                                    XMinimum="0"
-                                   XMaximum="3000"
+                                   XMaximum="1000"
                                    XGridStep="50"
                                    DataSource="{Binding CurrentValues}"
                                    DataMember="TimeSpan">
@@ -80,7 +143,7 @@
                                    YLable="Усилие (кг)"
                                    XLable="Время (мс)"
                                    YMinimum="0"
-                                   YMaximum="600"
+                                   YMaximum="700"
                                    YGridStep="30"
                                    AutoCalculateAxisLimits="False"
                                    XMinimum="0"

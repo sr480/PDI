@@ -10,6 +10,12 @@ namespace PDI
 {
     class MainViewModel : INotifyPropertyChanged
     {
+        private int _Acceleration = 0;
+        private int _Speed = 6250;
+        private int _ExperimentDuration = 0;
+        private int _ExperimentTemperature = 25;
+        private int _ExperimentWeight = 200;
+        private int _ExperimentFrequency = 25;
         private SynchronizationContext _synchronizationContext = SynchronizationContext.Current;
         
         private string _State;
@@ -34,6 +40,7 @@ namespace PDI
         //Commands
         public Tools.Command Connect_Disconnect { get; private set; }
         public Tools.Command StartExperiment { get; private set; }
+        public Tools.Command ApplyTuning { get; private set; }
         //Properties
         public string SelectedPort
         {
@@ -119,11 +126,127 @@ namespace PDI
                 RaisePropertyChanged("Position");
             }
         }
+
+
+        public bool IsExperimentMode
+        {
+            get
+            {
+                return _isExperimentMode;
+            }
+            private set
+            {
+                if (_isExperimentMode == value)
+                    return;
+                _isExperimentMode = value;                
+                RaisePropertyChanged("IsExperimentMode");
+            }
+        }
+        public int ExperimentFrequency
+        {
+            get
+            {
+                return _ExperimentFrequency;
+            }
+            set
+            {
+                if (_ExperimentFrequency == value)
+                    return;
+                if (value < 5 | value > 25)
+                    throw new Exception("Частота вне заданных пределов");
+                
+                _ExperimentFrequency = value;
+                RaisePropertyChanged("ExperimentFrequency");
+            }
+        }
+        public int ExperimentWeight
+        {
+            get
+            {
+                return _ExperimentWeight;
+            }
+            set
+            {
+                if (_ExperimentWeight == value)
+                    return;
+                if (value < 80 | value > 600)
+                    throw new Exception("Вес вне заданных пределов");
+                
+                _ExperimentWeight = value;
+                
+                RaisePropertyChanged("ExperimentWeight");
+            }
+        }
+        public int ExperimentTemperature
+        {
+            get
+            {
+                return _ExperimentTemperature;
+            }
+            set
+            {
+                if (_ExperimentTemperature == value)
+                    return;
+                if (value < 10 | value > 70)
+                    throw new Exception("Температура вне заданных пределов");
+
+                _ExperimentTemperature = value;
+                RaisePropertyChanged("ExperimentTemperature");
+            }
+        }
+        public int ExperimentDuration
+        {
+            get
+            {
+                return _ExperimentDuration;
+            }
+            set
+            {
+                if (_ExperimentDuration == value)
+                    return;
+                if (value < 0 | value > 16777215)
+                    throw new Exception("Длительность эксперимента вне заданных пределов");
+                
+                _ExperimentDuration = value;
+                RaisePropertyChanged("ExperimentDuration");
+            }
+        }
+
+        //Tuning properties
+        public int Speed
+        {
+            get { return _Speed; }
+            set
+            {
+                if (_Speed == value)
+                    return;
+                if (value > 51000)
+                    throw new Exception("Скорость не может быть больше 51000 мкс");
+                _Speed = value;
+                RaisePropertyChanged("Speed");
+            }
+        }
+
+        public int Acceleration
+        {
+            get { return _Acceleration; }
+            set
+            {
+                if (_Acceleration == value)
+                    return;
+                if (value > 51000)
+                    throw new Exception("Ускорение не может быть больше 51000 мкс");
+                _Acceleration = value;
+                RaisePropertyChanged("Acceleration");
+            }
+        }
         
+
         public MainViewModel()
         {
             Connect_Disconnect = new Tools.Command(x => Connect_DisconnectAction(), x => !String.IsNullOrEmpty(SelectedPort));
             StartExperiment = new Tools.Command(x => StartExperimentAction(), x => _port != null);
+            ApplyTuning = new Tools.Command(x => ApplyTunungAction(), x => _port != null);
 
             _availablePorts = new Tools.ViewableCollection<string>();
             _availablePorts.Fill(System.IO.Ports.SerialPort.GetPortNames());
@@ -131,7 +254,7 @@ namespace PDI
 
             _currentValues = new Tools.ViewableCollection<Model.CurrentValue>();
 
-            _dataRequestTimer = new System.Timers.Timer(500);
+            _dataRequestTimer = new System.Timers.Timer(1000);
             _dataRequestTimer.Elapsed += _dataRequestTimer_Elapsed;
             _dataRequestTimer.Start();
         }
@@ -144,7 +267,7 @@ namespace PDI
             if (!_port.TransmitAvailable)
                 return;
 
-            if (_isExperimentMode)
+            if (IsExperimentMode)
             {
                 var cmd = new Communication.RequestExperimentStateCommand();
                 cmd.RespondRecieved += ExperimentRespondRecieved;
@@ -184,7 +307,14 @@ namespace PDI
 
         private void StartExperimentAction()
         {
-            _isExperimentMode = !_isExperimentMode;
+            IsExperimentMode = !IsExperimentMode;
+            //while (!_port.TransmitAvailable) ;
+            //_port.SendCommand(new Communication.StartExperimentRequest(ExperimentFrequency, ExperimentDuration, ExperimentWeight, ExperimentDuration));
+        }
+        private void ApplyTunungAction()
+        {
+            while (!_port.TransmitAvailable) ;
+            _port.SendCommand(new Communication.TuningCommand(Speed, Acceleration));
         }
         private void Connect_DisconnectAction()
         {
@@ -200,6 +330,7 @@ namespace PDI
                 State = "подключение установлено";
             }
             StartExperiment.RaiseCanExecuteChanged();
+            ApplyTuning.RaiseCanExecuteChanged();
         }
 
         private void OnPropertyChanged(string propertyName)

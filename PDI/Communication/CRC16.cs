@@ -21,13 +21,13 @@ namespace PDI.Communication
         public byte[] Calculate(byte[] data, int len)
         {
             UInt16 crc = Calc_CRC(data, len);
-            return new byte[] { (byte)(crc >> 8), (byte)crc };
+            return new byte[] { (byte)crc, (byte)(crc >> 8) };
         }
 
         public byte[] Calculate(byte[] data)
         {
             UInt16 crc = Calc_CRC(data, data.Length);
-            return new byte[] {(byte)(crc>>8), (byte)crc };
+            return new byte[] { (byte)crc, (byte)(crc >> 8) };
         }
 
         private UInt16 Calc_CRC(byte[] buf, int len)
@@ -40,7 +40,7 @@ namespace PDI.Communication
             }
             return crc;
         }
-        
+
         private void calcCRCTable()
         {
             UInt16 value;

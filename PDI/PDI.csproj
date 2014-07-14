@@ -55,7 +55,11 @@
     </ApplicationDefinition>
     <Compile Include="Communication\BytesToTemperature.cs" />
     <Compile Include="Communication\RequestCurrentStateCommand.cs" />
+    <Compile Include="Communication\StartExperimentRequest.cs" />
+    <Compile Include="Communication\TuningCommand.cs" />
+    <Compile Include="Tools\BoolInverter.cs" />
     <Compile Include="Tools\Command.cs" />
+    <Compile Include="Tools\ValueLimitRule.cs" />
     <Compile Include="Tools\ViewableCollection.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
