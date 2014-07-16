@@ -14,7 +14,7 @@ namespace PDI.Communication
             return SerialPort.GetPortNames();
         }
 
-        private const int MAX_RESENDS = 3;
+        private const int MAX_RESENDS = 300000;
         private const int MAX_TIMEOUT = 1000;
 
         private bool _debugMode = false;
@@ -69,15 +69,20 @@ namespace PDI.Communication
             byte[] commandBuf = new byte[_lastCommand.Message.Length + 2];
             _lastCommand.Message.CopyTo(commandBuf, 0);
             _crcHelper.Calculate(_lastCommand.Message).CopyTo(commandBuf, _lastCommand.Message.Length);
-
+            _port.ReadExisting();
             _port.Write(commandBuf, 0, commandBuf.Length);
             if(!_debugMode)
                 _timeout.Start();
             _resends++;
             Console.WriteLine("Отправка сообщения:");
+            Model.Logger.LogInstance.WriteLine("Отправка сообщения:");
             foreach (var bt in commandBuf)
-               Console.Write(bt.ToString("X2") + " ");
+            {
+                Console.Write(bt.ToString("X2") + " ");
+                Model.Logger.LogInstance.Write(bt.ToString("X2") + " ");
+            }
             Console.WriteLine("Попытка {0} из {1}", _resends, MAX_RESENDS);
+            Model.Logger.LogInstance.WriteLine(string.Format("Попытка {0} из {1}", _resends, MAX_RESENDS));
         }
 
         void _port_DataReceived(object sender, SerialDataReceivedEventArgs e)
@@ -86,6 +91,7 @@ namespace PDI.Communication
             {
                 _port.ReadExisting();
                 Console.WriteLine("Получен неожиданный ответ");
+                Model.Logger.LogInstance.WriteLine("Получен неожиданный ответ");
                 return;
             }
 
@@ -103,6 +109,7 @@ namespace PDI.Communication
             {
                 for (int pos = _bufReadCursor - dataread; pos < _bufReadCursor; pos++)
                     Console.Write(_respondeBuf[pos].ToString("X2") + " ");
+
                 Console.WriteLine();
                 return;
             }
@@ -110,9 +117,13 @@ namespace PDI.Communication
             if (_bufReadCursor == _lastCommand.DataLen)
             {
                 Console.WriteLine("Получено собщение:");
+                Model.Logger.LogInstance.WriteLine("Получено собщение:");
                 for (int pos = 0; pos < _bufReadCursor; pos++)
+                {
                     Console.Write(_respondeBuf[pos].ToString("X2") + " ");
-
+                    Model.Logger.LogInstance.Write(_respondeBuf[pos].ToString("X2") + " ");
+                }
+                Console.WriteLine();
                 OnRespondeRecieved();
             }
         }
@@ -122,6 +133,7 @@ namespace PDI.Communication
             if (!CheckRecievedPackage(_respondeBuf))
             {
                 Console.WriteLine("Ошибка контрольной суммы");
+                Model.Logger.LogInstance.WriteLine("Ошибка контрольной суммы");
                 Resend();
             }
             else
@@ -141,6 +153,7 @@ namespace PDI.Communication
 
         void _timeout_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
+            Console.WriteLine("Превышено время ожидания ответа");
             Resend();
         }
 

@@ -42,6 +42,11 @@ namespace PDI
         public Tools.Command StartExperiment { get; private set; }
         public Tools.Command ApplyTuning { get; private set; }
         //Properties
+        public Model.Logger Logger
+        {
+            get { return Model.Logger.LogInstance; }
+        }
+
         public string SelectedPort
         {
             get
@@ -275,9 +280,9 @@ namespace PDI
             }
             else
             {
-                var cmd = new Communication.RequestTemperatureCommand();
-                cmd.RespondRecieved += TemperatureRespondRecieved;
-                _port.SendCommand(cmd);
+                //var cmd = new Communication.RequestTemperatureCommand();
+                //cmd.RespondRecieved += TemperatureRespondRecieved;
+                //_port.SendCommand(cmd);
             }
         }
 

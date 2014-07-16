@@ -143,7 +143,7 @@ namespace ChartControl
 
         private void ReadRawData()
         {
-            var start = DateTime.Now;
+            //var start = DateTime.Now;
             rawData = new List<RawValueInfo>();
             if (DataSource == null)
                 return;
@@ -165,7 +165,7 @@ namespace ChartControl
                 }
                 catch { }
             }
-            Console.WriteLine("ReadData: {0} ms", (DateTime.Now - start).Milliseconds);
+            //Console.WriteLine("ReadData: {0} ms", (DateTime.Now - start).Milliseconds);
         }
         protected override void OnPropertyChanged(DependencyPropertyChangedEventArgs e)
         {
@@ -224,25 +224,25 @@ namespace ChartControl
         }
         public void RedrawAll()
         {
-            var start = DateTime.Now;
+            //var start = DateTime.Now;
             RedrawPlot(plot.ActualWidth, plot.ActualHeight);
-            Console.WriteLine("RedrawPlot: {0} ms", (DateTime.Now - start).Milliseconds);
+            //Console.WriteLine("RedrawPlot: {0} ms", (DateTime.Now - start).Milliseconds);
 
-            start = DateTime.Now;
+            //start = DateTime.Now;
             RedrawYAxis(yAxisValues.ActualHeight);
-            Console.WriteLine("RedrawYAxis: {0} ms", (DateTime.Now - start).Milliseconds);
+            //Console.WriteLine("RedrawYAxis: {0} ms", (DateTime.Now - start).Milliseconds);
 
-            start = DateTime.Now;
+            //start = DateTime.Now;
             RedrawXAxis(xAxisValues.ActualWidth);
-            Console.WriteLine("RedrawXAxis: {0} ms", (DateTime.Now - start).Milliseconds);
+            //Console.WriteLine("RedrawXAxis: {0} ms", (DateTime.Now - start).Milliseconds);
 
-            start = DateTime.Now;
+            //start = DateTime.Now;
             RedrawGrid(plotGrid.ActualWidth, plotGrid.ActualHeight);
-            Console.WriteLine("RedrawGrid: {0} ms", (DateTime.Now - start).Milliseconds);
+            //Console.WriteLine("RedrawGrid: {0} ms", (DateTime.Now - start).Milliseconds);
 
-            start = DateTime.Now;
+            //start = DateTime.Now;
             DrawMouseCross();
-            Console.WriteLine("DrawMouseCross: {0} ms", (DateTime.Now - start).Milliseconds);
+            //Console.WriteLine("DrawMouseCross: {0} ms", (DateTime.Now - start).Milliseconds);
         }
 
         //Redraw plot

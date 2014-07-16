@@ -37,9 +37,14 @@ namespace PDI.Communication
         {
             double[] result = new double[800];
             for (int pos = 0; pos < 800; pos++)
-                result[pos] = ((data[pos * 2] << 8) + data[pos * 2 + 1]) / 1024.0 * 600.0;
+                result[pos] = BytesToWeight(data[pos * 2 + 1], data[pos * 2]);
             return result;
         }
+        private double BytesToWeight(byte hi, byte lo)
+        {
+            return (lo + (hi << 8)) * 0.8056395;
+        }
+
         private double GetTermo(byte[] data, int termoId)
         {
             return BytesToTemperature.GetTemperature(data[1600 + termoId * 2], data[1600 + termoId * 2 + 1]);

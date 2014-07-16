@@ -57,6 +57,7 @@
     <Compile Include="Communication\RequestCurrentStateCommand.cs" />
     <Compile Include="Communication\StartExperimentRequest.cs" />
     <Compile Include="Communication\TuningCommand.cs" />
+    <Compile Include="Model\Logger.cs" />
     <Compile Include="Tools\BoolInverter.cs" />
     <Compile Include="Tools\Command.cs" />
     <Compile Include="Tools\ValueLimitRule.cs" />

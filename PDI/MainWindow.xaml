@@ -16,9 +16,9 @@
             <RowDefinition Height="50"/>
             <RowDefinition/>
             <RowDefinition/>
-            <RowDefinition Height="22"/>
+            <RowDefinition Height="200"/>
         </Grid.RowDefinitions>
-        <StackPanel Grid.Column="1" Grid.RowSpan="3" Margin="3">
+        <StackPanel Grid.Column="1" Grid.RowSpan="4" Margin="3">
             <HeaderedContentControl Header="Порт:">
                 <ComboBox ItemsSource="{Binding AvailablePorts}" SelectedValue="{Binding SelectedPort}"/>
             </HeaderedContentControl>
@@ -155,5 +155,6 @@
                 <ChartControl:ValueMemberDefinition Color="Red" Member="Weight"/>
             </ChartControl:ChartControl.ValueMembers>
         </ChartControl:ChartControl>
+        <TextBox Text="{Binding Logger.Log, Mode=OneWay}" Grid.Column="0" Grid.Row="3"></TextBox>
     </Grid>
 </Window>
