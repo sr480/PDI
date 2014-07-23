@@ -312,9 +312,14 @@ namespace PDI
 
         private void StartExperimentAction()
         {
+            while (!_port.TransmitAvailable) ;
+            
+            if(!IsExperimentMode)
+                _port.SendCommand(new Communication.StartExperimentRequest(ExperimentFrequency, ExperimentDuration, ExperimentWeight, ExperimentDuration));
+            else
+                _port.SendCommand(new Communication.StopExperimentRequest());
+
             IsExperimentMode = !IsExperimentMode;
-            //while (!_port.TransmitAvailable) ;
-            //_port.SendCommand(new Communication.StartExperimentRequest(ExperimentFrequency, ExperimentDuration, ExperimentWeight, ExperimentDuration));
         }
         private void ApplyTunungAction()
         {
