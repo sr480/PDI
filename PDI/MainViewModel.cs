@@ -17,7 +17,7 @@ namespace PDI
         private int _ExperimentWeight = 200;
         private int _ExperimentFrequency = 25;
         private SynchronizationContext _synchronizationContext = SynchronizationContext.Current;
-        
+
         private string _State;
         private const int BAUD_RATE = 1000000;
         private readonly Tools.ViewableCollection<string> _availablePorts;
@@ -143,7 +143,7 @@ namespace PDI
             {
                 if (_isExperimentMode == value)
                     return;
-                _isExperimentMode = value;                
+                _isExperimentMode = value;
                 RaisePropertyChanged("IsExperimentMode");
             }
         }
@@ -159,7 +159,7 @@ namespace PDI
                     return;
                 if (value < 5 | value > 25)
                     throw new Exception("Частота вне заданных пределов");
-                
+
                 _ExperimentFrequency = value;
                 RaisePropertyChanged("ExperimentFrequency");
             }
@@ -176,9 +176,9 @@ namespace PDI
                     return;
                 if (value < 80 | value > 600)
                     throw new Exception("Вес вне заданных пределов");
-                
+
                 _ExperimentWeight = value;
-                
+
                 RaisePropertyChanged("ExperimentWeight");
             }
         }
@@ -211,7 +211,7 @@ namespace PDI
                     return;
                 if (value < 0 | value > 16777215)
                     throw new Exception("Длительность эксперимента вне заданных пределов");
-                
+
                 _ExperimentDuration = value;
                 RaisePropertyChanged("ExperimentDuration");
             }
@@ -245,7 +245,7 @@ namespace PDI
                 RaisePropertyChanged("Acceleration");
             }
         }
-        
+
 
         public MainViewModel()
         {
@@ -312,6 +312,13 @@ namespace PDI
 
         private void StartExperimentAction()
         {
+            while (!_port.TransmitAvailable) ;
+
+            if (!IsExperimentMode)
+                _port.SendCommand(new Communication.StartExperimentRequest(ExperimentFrequency, ExperimentDuration, ExperimentWeight, ExperimentDuration));
+            else
+                _port.SendCommand(new Communication.StopExperimentRequest());
+
             IsExperimentMode = !IsExperimentMode;
             while (!_port.TransmitAvailable) ;
             _port.SendCommand(new Communication.StartExperimentRequest(ExperimentFrequency, ExperimentDuration, ExperimentWeight, ExperimentDuration));
