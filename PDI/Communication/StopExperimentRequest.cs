@@ -14,7 +14,7 @@ namespace PDI.Communication
         }
 
         public StopExperimentRequest() :
-            base(new byte[] { 0x0f, 0x00, 0x00, 0x00 })
+            base(new byte[] { 0x09 })
         { }
 
         public override void OnRespondRecieved(byte[] data)

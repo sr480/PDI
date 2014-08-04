@@ -21,10 +21,10 @@ namespace PDI.Communication
         {
             if(RespondRecieved != null)
                 RespondRecieved(this, new TemperatureRecievedEventArgs(
-                    BytesToTemperature.GetTemperature(data[0], data[1]),
-                    BytesToTemperature.GetTemperature(data[2], data[3]),
-                    BytesToTemperature.GetTemperature(data[4], data[5]),
-                    BytesToTemperature.GetTemperature(data[6], data[7])));
+                    BytesToTemperature.GetTemperature(data[1], data[0]),
+                    BytesToTemperature.GetTemperature(data[3], data[2]),
+                    BytesToTemperature.GetTemperature(data[5], data[4]),
+                    BytesToTemperature.GetTemperature(data[7], data[6])));
                 
         }
     }

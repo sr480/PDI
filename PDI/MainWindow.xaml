@@ -132,10 +132,10 @@
                                    XMinimum="0"
                                    XMaximum="1000"
                                    XGridStep="50"
-                                   DataSource="{Binding CurrentValues}"
-                                   DataMember="TimeSpan">
+                                   DataSource="{Binding ExperimentValues}"
+                                   DataMember="Cycle">
             <ChartControl:ChartControl.ValueMembers>
-                <ChartControl:ValueMemberDefinition Color="Blue" Member="Weight"/>
+                <ChartControl:ValueMemberDefinition Color="Blue" Member="Position"/>
             </ChartControl:ChartControl.ValueMembers>
         </ChartControl:ChartControl>
         <ChartControl:ChartControl Grid.Column="0" Grid.Row="2" VerticalAlignment="Stretch"

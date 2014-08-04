@@ -55,10 +55,12 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Communication\BytesToTemperature.cs" />
+    <Compile Include="Communication\BytesToWeight.cs" />
     <Compile Include="Communication\RequestCurrentStateCommand.cs" />
     <Compile Include="Communication\StopExperimentRequest.cs" />
     <Compile Include="Communication\StartExperimentRequest.cs" />
     <Compile Include="Communication\TuningCommand.cs" />
+    <Compile Include="Model\ExperimentLog.cs" />
     <Compile Include="Model\Logger.cs" />
     <Compile Include="Tools\BoolInverter.cs" />
     <Compile Include="Tools\Command.cs" />

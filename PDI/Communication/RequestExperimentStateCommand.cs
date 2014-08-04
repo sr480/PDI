@@ -26,7 +26,9 @@ namespace PDI.Communication
                     GetTermo(data, 1),
                     GetTermo(data, 2),
                     GetTermo(data, 3),
-                    GetPosition(data)
+                    GetCycles(data),
+                    GetPosition(data),
+                    GetAverage(data)
                 );
 
             if (RespondRecieved != null)
@@ -37,17 +39,25 @@ namespace PDI.Communication
         {
             double[] result = new double[800];
             for (int pos = 0; pos < 800; pos++)
-                result[pos] = BytesToWeight(data[pos * 2 + 1], data[pos * 2]);
+                result[pos] = BytesToWeight.GetWeight(data[pos * 2 + 1], data[pos * 2]);
             return result;
         }
-        private double BytesToWeight(byte hi, byte lo)
+
+        private double GetAverage(byte[] data)
         {
-            return (lo + (hi << 8)) * 0.8056395;
+            double avg = 0;
+            for (int pos = 0; pos < 800; pos++)
+                avg += (data[pos * 2 + 1] << 8) + data[pos * 2];
+            return avg / 800.0;
         }
 
         private double GetTermo(byte[] data, int termoId)
         {
-            return BytesToTemperature.GetTemperature(data[1600 + termoId * 2], data[1600 + termoId * 2 + 1]);
+            return BytesToTemperature.GetTemperature(data[1600 + termoId * 2 + 1], data[1600 + termoId * 2]);
+        }
+        private int GetCycles(byte[] data)
+        {
+            return data[1605] + (data[1606] << 8) + (data[1607] << 16) + (data[1608] << 24);
         }
         private double GetPosition(byte[] data)
         {
@@ -64,20 +74,26 @@ namespace PDI.Communication
         public double TD3 { get; private set; }
         public double TD4 { get; private set; }
         public double Position { get; private set; }
+        public int Cycles { get; private set; }
+        public double AverageTenso { get; private set; }
 
         public ExperimentStateRecievedEventArgs(double[] tensos,
                                                         double td1,
             double td2,
             double td3,
             double td4,
-            double position)
+            int cycles,
+            double position,
+            double average)
         {
             Tensos = tensos;
             TD1 = td1;
             TD2 = td2;
             TD3 = td3;
             TD4 = td4;
+            Cycles = cycles;
             Position = position;
+            AverageTenso = average;
         }
     }
 }

@@ -23,6 +23,11 @@ namespace PDI
         private readonly Tools.ViewableCollection<string> _availablePorts;
         private string _SelectedPort;
         private readonly Tools.ViewableCollection<Model.CurrentValue> _currentValues;
+
+        private readonly List<Model.ExperimentLog> _experimentActualLog;
+        private readonly Tools.ViewableCollection<Model.ExperimentLog> _experimentValues;
+
+
         private Communication.Port _port;
         private bool _isExperimentMode = false;
 
@@ -36,6 +41,7 @@ namespace PDI
         public event PropertyChangedEventHandler PropertyChanged;
         //Collections
         public Tools.ViewableCollection<Model.CurrentValue> CurrentValues { get { return _currentValues; } }
+        public Tools.ViewableCollection<Model.ExperimentLog> ExperimentValues { get { return _experimentValues; } }
         public Tools.ViewableCollection<string> AvailablePorts { get { return _availablePorts; } }
         //Commands
         public Tools.Command Connect_Disconnect { get; private set; }
@@ -258,6 +264,7 @@ namespace PDI
             SelectedPort = AvailablePorts.FirstOrDefault();
 
             _currentValues = new Tools.ViewableCollection<Model.CurrentValue>();
+            _experimentValues = new Tools.ViewableCollection<Model.ExperimentLog>();
 
             _dataRequestTimer = new System.Timers.Timer(1000);
             _dataRequestTimer.Elapsed += _dataRequestTimer_Elapsed;
@@ -280,9 +287,9 @@ namespace PDI
             }
             else
             {
-                //var cmd = new Communication.RequestTemperatureCommand();
-                //cmd.RespondRecieved += TemperatureRespondRecieved;
-                //_port.SendCommand(cmd);
+                var cmd = new Communication.RequestTemperatureCommand();
+                cmd.RespondRecieved += TemperatureRespondRecieved;
+                _port.SendCommand(cmd);
             }
         }
 
@@ -301,13 +308,30 @@ namespace PDI
             TD3 = string.Format("ТД3: {0} °C", e.TD3);
             TD4 = string.Format("ТД4: {0} °C", e.TD4);
             Position = string.Format("ПОЗ: {0} мм", e.Position);
+            //Position = string.Format("СРЕД: {0} кг", e.AverageTenso);
 
             List<Model.CurrentValue> values = new List<Model.CurrentValue>(800);
             int div = 1;
+
             for (int i = 0; i < e.Tensos.Length; i += div)
                 values.Add(new Model.CurrentValue(i * 1.25, e.Tensos[i]));
 
             CurrentValues.BulkFill(values);
+            _experimentActualLog.Add(new Model.ExperimentLog(e.Cycles, e.Position));
+            RedrawExperiment();
+        }
+
+        private void RedrawExperiment()
+        {
+            int proxyCount = 800;
+            if (_experimentActualLog.Count > proxyCount * 2)
+            {
+                int step = _experimentActualLog.Count / proxyCount;
+                ExperimentValues.BulkFill(_experimentActualLog.Where((x, i) => i % step == 0).ToArray());
+            }
+            else
+                ExperimentValues.BulkFill(_experimentActualLog);
+
         }
 
         private void StartExperimentAction()
@@ -315,13 +339,17 @@ namespace PDI
             while (!_port.TransmitAvailable) ;
 
             if (!IsExperimentMode)
-                _port.SendCommand(new Communication.StartExperimentRequest(ExperimentFrequency, ExperimentDuration, ExperimentWeight, ExperimentDuration));
+            {
+                while (!_port.TransmitAvailable) ;
+                //_port.SendCommand(new Communication.StartExperimentRequest(ExperimentFrequency, ExperimentDuration, ExperimentWeight, ExperimentDuration));
+            }
             else
-                _port.SendCommand(new Communication.StopExperimentRequest());
-
+            {
+                while (!_port.TransmitAvailable) ;
+                //_port.SendCommand(new Communication.StopExperimentRequest());
+            }
             IsExperimentMode = !IsExperimentMode;
-            while (!_port.TransmitAvailable) ;
-            _port.SendCommand(new Communication.StartExperimentRequest(ExperimentFrequency, ExperimentDuration, ExperimentWeight, ExperimentDuration));
+
         }
         private void ApplyTunungAction()
         {

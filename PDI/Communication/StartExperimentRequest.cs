@@ -17,7 +17,7 @@ namespace PDI.Communication
            base(new byte[] {0x02, 
                  (byte)freq,
                  (byte)temp,
-                 (byte)weight, (byte)(weight>>8),
+                 (byte)BytesToWeight.GetBytes(weight), (byte)(BytesToWeight.GetBytes(weight)>>8),
                  (byte)duration, (byte)(duration>>8), (byte)(duration>>16)})
         { }
 

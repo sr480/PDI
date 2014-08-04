@@ -10,7 +10,7 @@ namespace PDI.Communication
     {
         public static double GetTemperature(byte hiBt, byte loBt)
         {
-            return (hiBt << 8) + loBt;
+            return ((hiBt << 8) + loBt) * 0.0625;
         }
     }
 }
