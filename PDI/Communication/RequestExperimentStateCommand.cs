@@ -24,8 +24,8 @@ namespace PDI.Communication
                     GetTensos(data),
                     GetTermo(data, 0),
                     GetTermo(data, 1),
-                    GetTermo(data, 2),
-                    GetTermo(data, 3),
+                    GetTermo(data, 0),
+                    GetTermo(data, 1),
                     GetCycles(data),
                     GetPosition(data),
                     GetAverage(data)
@@ -39,7 +39,7 @@ namespace PDI.Communication
         {
             double[] result = new double[800];
             for (int pos = 0; pos < 800; pos++)
-                result[pos] = BytesToWeight.GetWeight(data[pos * 2 + 1], data[pos * 2]);
+                result[pos] = BytesToWeight.GetWeight(data[pos * 2], data[pos * 2 + 1]);
             return result;
         }
 
@@ -53,15 +53,15 @@ namespace PDI.Communication
 
         private double GetTermo(byte[] data, int termoId)
         {
-            return BytesToTemperature.GetTemperature(data[1600 + termoId * 2 + 1], data[1600 + termoId * 2]);
+            return BytesToTemperature.GetTemperature(data[1602 + termoId * 2 + 1], data[1602 + termoId * 2]);
         }
         private int GetCycles(byte[] data)
         {
-            return data[1605] + (data[1606] << 8) + (data[1607] << 16) + (data[1608] << 24);
+            return data[1606] + (data[1607] << 8) + (data[1608] << 16) + (data[1609] << 24);
         }
         private double GetPosition(byte[] data)
         {
-            return ((data[1609] << 8) + data[1610]) / 200.0; //1000 импульсов на 5 мм
+            return ((data[1601] << 8) + data[1600]) / 160.0; //1600 импульсов на 5 мм
         }
     }
     public delegate void ExperimentStateRecievedEventHandler(object sender, ExperimentStateRecievedEventArgs e);

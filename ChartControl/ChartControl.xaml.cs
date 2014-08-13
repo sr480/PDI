@@ -23,6 +23,8 @@ namespace ChartControl
     public partial class ChartControl : UserControl
     {
         private Line _hLine;
+        private Line _limitLine;
+
         public static readonly DependencyProperty TitleProperty =
             DependencyProperty.Register("Title", typeof(string), typeof(ChartControl), new UIPropertyMetadata("Title"));
         private Line _vLine;
@@ -50,6 +52,10 @@ namespace ChartControl
             DependencyProperty.Register("DataSource", typeof(object), typeof(ChartControl));
         public static readonly DependencyProperty AutoCalculateAxisLimitsProperty =
             DependencyProperty.Register("AutoCalculateAxisLimits", typeof(bool), typeof(ChartControl), new UIPropertyMetadata(true));
+        public static readonly DependencyProperty LimitLineProperty =
+            DependencyProperty.Register("LimitLine", typeof(double), typeof(ChartControl), new UIPropertyMetadata(double.NaN));
+
+        bool _supressredraw = false;
 
         double _height;
         double _width;
@@ -125,7 +131,11 @@ namespace ChartControl
             get { return GetValue(DataSourceProperty); }
             set { SetValue(DataSourceProperty, value); }
         }
-
+        public double LimitLine
+        {
+            get { return (double)GetValue(LimitLineProperty); }
+            set { SetValue(LimitLineProperty, value); }
+        }
 
         private List<RawValueInfo> rawData;
 
@@ -186,9 +196,9 @@ namespace ChartControl
                 e.Property == XMinimumProperty |
                 e.Property == YMinimumProperty |
                 e.Property == XGridStepProperty |
-                e.Property == YGridStepProperty)
+                e.Property == YGridStepProperty |
+                e.Property == LimitLineProperty)
                 RedrawAll();
-
         }
 
         void DataSourceChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -197,9 +207,11 @@ namespace ChartControl
         }
         private void ReadData()
         {
+            _supressredraw = true;
             ReadRawData();
             if (AutoCalculateAxisLimits)
                 CalculateAxisLimits();
+            _supressredraw = false;
             if (IsVisible)
                 RedrawAll();
         }
@@ -214,6 +226,7 @@ namespace ChartControl
 
             double xLength = Math.Abs(maxData - minData);
             double yLength = Math.Abs(maxValue - minValue);
+            
             XMinimum = minData;
             XMaximum = maxData;
             YMinimum = minValue;
@@ -224,6 +237,8 @@ namespace ChartControl
         }
         public void RedrawAll()
         {
+            if (_supressredraw)
+                return;
             //var start = DateTime.Now;
             RedrawPlot(plot.ActualWidth, plot.ActualHeight);
             //Console.WriteLine("RedrawPlot: {0} ms", (DateTime.Now - start).Milliseconds);
@@ -240,9 +255,29 @@ namespace ChartControl
             RedrawGrid(plotGrid.ActualWidth, plotGrid.ActualHeight);
             //Console.WriteLine("RedrawGrid: {0} ms", (DateTime.Now - start).Milliseconds);
 
+            DrawLimitLine(plotGrid.ActualWidth, plotGrid.ActualHeight);
+
             //start = DateTime.Now;
             DrawMouseCross();
             //Console.WriteLine("DrawMouseCross: {0} ms", (DateTime.Now - start).Milliseconds);
+        }
+
+        private void DrawLimitLine(double width, double height)
+        {
+            //Draw LimitLine
+            if (!double.IsNaN(LimitLine))
+            {
+                double yTransform = height / (YMaximum - YMinimum);
+                if (_limitLine == null)
+                {
+                    _limitLine = new Line() { Stroke = System.Windows.Media.Brushes.LimeGreen };
+                    limitLineGrid.Children.Add(_limitLine);
+                }
+                _limitLine.X1 = 0;
+                _limitLine.Y1 = height - LimitLine * yTransform;
+                _limitLine.X2 = width;
+                _limitLine.Y2 = height - LimitLine * yTransform;
+            }
         }
 
         //Redraw plot
@@ -285,11 +320,13 @@ namespace ChartControl
         //Redraw vertical axis
         private void RedrawYAxis(double height)
         {
-            if (_height == height)
-                return;
+            //if (_height == height)
+            //    return;
 
             _height = height;
 
+            if (YMaximum == YMinimum)
+                YMaximum = YMinimum + 1;
             yAxisValues.Children.Clear();
             double yTransform = height / (YMaximum - YMinimum);
             int hCount = (int)((YMaximum - YMinimum) / YGridStep);
@@ -325,12 +362,15 @@ namespace ChartControl
         //Redraw horisontal axis
         private void RedrawXAxis(double width)
         {
-            if (_width == width)
-                return;
+            //if (_width == width)
+            //    return;
             _width = width;
 
+            if (XMaximum == XMinimum)
+                XMaximum = XMinimum + 1;
             xAxisValues.Children.Clear();
             double xTransform = width / (XMaximum - XMinimum);
+
             int vCount = (int)((XMaximum - XMinimum) / XGridStep);
             for (int v = 0; v <= vCount; v++)
             {
@@ -402,6 +442,7 @@ namespace ChartControl
         void plotGrid_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             RedrawGrid(e.NewSize.Width, e.NewSize.Height);
+            DrawLimitLine(e.NewSize.Width, e.NewSize.Height);
         }
 
         private void plotTarget_MouseMove(object sender, MouseEventArgs e)

@@ -41,6 +41,7 @@
             </Grid.LayoutTransform>
         </Grid>
         <Canvas x:Name="plotGrid" Grid.Row="1" Grid.Column="2"/>
+        <Canvas x:Name="limitLineGrid" Grid.Row="1" Grid.Column="2"/>
         <Grid x:Name="plot" Grid.Row="1" Grid.Column="2"/>
         <Grid x:Name="plotTarget" Grid.Row="1" Grid.Column="2" Background="Transparent" MouseMove="plotTarget_MouseMove"/>
     </Grid>

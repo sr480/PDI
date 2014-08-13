@@ -5,10 +5,13 @@ using System.Text;
 
 namespace PDI.Model
 {
+    [Serializable]
     public class ExperimentLog
     {
-        public int Cycle { get; private set; }
-        public double Position { get; private set; }
+        public int Cycle { get; set; }
+        public double Position { get; set; }
+        public ExperimentLog()
+        { }
         public ExperimentLog(int cycle, double position)
         {
             Cycle = cycle;

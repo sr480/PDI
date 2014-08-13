@@ -13,5 +13,15 @@ namespace PDI
     /// </summary>
     public partial class App : Application
     {
+        protected override void OnStartup(StartupEventArgs e)
+        {
+            this.DispatcherUnhandledException += new System.Windows.Threading.DispatcherUnhandledExceptionEventHandler(App_DispatcherUnhandledException);
+
+            base.OnStartup(e);
+        }
+        private void App_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
+        {
+            System.Windows.Forms.MessageBox.Show(e.Exception.Message + "\n-----------\n" + e.Exception.StackTrace);
+        }
     }
 }

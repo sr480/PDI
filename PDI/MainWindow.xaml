@@ -6,6 +6,8 @@
         Title="MainWindow" Height="660" Width="960" MinHeight="660" MinWidth="960">
     <Window.Resources>
         <Tools:BooleanInverter x:Key="BoolInverter"/>
+        <Tools:BooleanToVisibilityInverted x:Key="BoolToVisibilityInverted"/>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
     </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
@@ -94,10 +96,14 @@
                             <TextBlock HorizontalAlignment="Right" Foreground="Red" Text="{Binding (Validation.Errors)[0].ErrorContent, ElementName=tb_ExperimentDuration}"/>
                         </StackPanel>
                     </HeaderedContentControl>
+                    <TextBlock Foreground="{Binding CurrentState.Color}" Text="{Binding CurrentState.Text}" FontSize="20" FontWeight="Bold" HorizontalAlignment="Stretch" TextAlignment="Center"/>
                     <Button Command="{Binding StartExperiment}">Запустить/прервать испытание</Button>
+                    <Button Command="{Binding OpenExperiment}">Открыть испытание</Button>
+                    <Button Command="{Binding SaveExperiment}">Сохранить испытание</Button>
+                    <Button Command="{Binding Export}">Экспорт в Excel</Button>
                 </StackPanel>
             </GroupBox>
-            <GroupBox Header="Настройка ШД">
+            <!--<GroupBox Header="Настройка ШД">
                 <StackPanel>
                     <HeaderedContentControl Header="Период (мкс)">
                         <StackPanel>
@@ -113,14 +119,16 @@
                     </HeaderedContentControl>
                     <Button Command="{Binding ApplyTuning}">Применить</Button>
                 </StackPanel>
-            </GroupBox>
+            </GroupBox>-->
         </StackPanel>
         <StackPanel Orientation="Horizontal" Grid.Column="0" Grid.Row="0">
             <TextBlock FontSize="20" VerticalAlignment="Center"  Margin="2" Width="160" Text="{Binding Position, FallbackValue='ПОЗ: 175.23 мм'}"/>
+            <TextBlock FontSize="20" VerticalAlignment="Center"  Margin="2" Width="160" Text="{Binding Cycles, FallbackValue='ЦКЛ: 0'}"/>
             <TextBlock FontSize="20" VerticalAlignment="Center"  Margin="2" Width="120" Text="{Binding TD1, FallbackValue='ТД1: 35.2 °С'}"/>
             <TextBlock FontSize="20" VerticalAlignment="Center"  Margin="2" Width="120" Text="{Binding TD2, FallbackValue='ТД2: 38.3 °С'}"/>
             <TextBlock FontSize="20" VerticalAlignment="Center"  Margin="2" Width="120" Text="{Binding TD3, FallbackValue='ТД3: 39.8 °С'}"/>
-            <TextBlock FontSize="20" VerticalAlignment="Center"  Margin="2" Width="120" Text="{Binding TD4, FallbackValue='ТД4: 37.9 °С'}"/>
+            <TextBlock FontSize="20" VerticalAlignment="Center"  Margin="2" Width="120" Text="{Binding Delta, FallbackValue='ДЕФ: н/д'}"/>
+            <TextBlock FontSize="20" VerticalAlignment="Center"  Margin="2" Width="120" Text="{Binding Elapsed, FallbackValue='Ост.: н/д'}"/>
         </StackPanel>
         <ChartControl:ChartControl Grid.Column="0" Grid.Row="1" VerticalAlignment="Stretch"
                                    Title="Ход испытания:"
@@ -128,7 +136,7 @@
                                    XLable="Циклов"
                                    YMinimum="0"
                                    YMaximum="220"
-                                   YGridStep="10"
+                                   YGridStep="20"
                                    XMinimum="0"
                                    XMaximum="1000"
                                    XGridStep="50"
@@ -144,17 +152,19 @@
                                    XLable="Время (мс)"
                                    YMinimum="0"
                                    YMaximum="700"
-                                   YGridStep="30"
+                                   YGridStep="50"
                                    AutoCalculateAxisLimits="False"
                                    XMinimum="0"
                                    XMaximum="1000"
                                    XGridStep="50"
                                    DataSource="{Binding CurrentValues}"
-                                   DataMember="TimeSpan">
+                                   DataMember="TimeSpan"
+                                   LimitLine="{Binding ExperimentWeight}">
             <ChartControl:ChartControl.ValueMembers>
                 <ChartControl:ValueMemberDefinition Color="Red" Member="Weight"/>
             </ChartControl:ChartControl.ValueMembers>
         </ChartControl:ChartControl>
+        <CheckBox Grid.Column="0" Grid.Row="2" VerticalAlignment="Top" IsChecked="{Binding StopUpdate}">Приостановить обновление</CheckBox>
         <TextBox Text="{Binding Logger.Log, Mode=OneWay}" Grid.Column="0" Grid.Row="3"></TextBox>
     </Grid>
 </Window>
