@@ -54,6 +54,9 @@ namespace ChartControl
             DependencyProperty.Register("AutoCalculateAxisLimits", typeof(bool), typeof(ChartControl), new UIPropertyMetadata(true));
         public static readonly DependencyProperty LimitLineProperty =
             DependencyProperty.Register("LimitLine", typeof(double), typeof(ChartControl), new UIPropertyMetadata(double.NaN));
+        public static readonly DependencyProperty RoundSignsProperty =
+            DependencyProperty.Register("RoundSigns", typeof(int), typeof(ChartControl), new UIPropertyMetadata(1));
+
 
         bool _supressredraw = false;
 
@@ -135,6 +138,11 @@ namespace ChartControl
         {
             get { return (double)GetValue(LimitLineProperty); }
             set { SetValue(LimitLineProperty, value); }
+        }
+        public int RoundSigns
+        {
+            get { return (int)GetValue(RoundSignsProperty); }
+            set { SetValue(RoundSignsProperty, value); }
         }
 
         private List<RawValueInfo> rawData;
@@ -334,7 +342,7 @@ namespace ChartControl
             {
                 yAxisValues.Children.Add(new TextBlock()
                 {
-                    Text = (YMinimum + YGridStep * h).ToString("F1"),
+                    Text = Math.Round((YMinimum + YGridStep * h), RoundSigns).ToString(),
                     Margin = new Thickness(0, height - h * YGridStep * yTransform, 0, 1)
                 });
             }

@@ -7,7 +7,7 @@ namespace PDI.Communication
 {
     static class BytesToWeight
     {
-        private const double WEIGHT_CONV = 0.663476;
+        private const double WEIGHT_CONV = 0.58;
         public static double GetWeight(byte lo, byte hi)
         {
             return (lo + (hi << 8)) * WEIGHT_CONV;

@@ -61,7 +61,13 @@
     <Compile Include="Communication\StopExperimentRequest.cs" />
     <Compile Include="Communication\StartExperimentRequest.cs" />
     <Compile Include="Communication\TuningCommand.cs" />
+    <Compile Include="ExperimentProperties.xaml.cs">
+      <DependentUpon>ExperimentProperties.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ExperimentPropertiesViewModel.cs" />
     <Compile Include="Model\ExperimentLog.cs" />
+    <Compile Include="Model\PropertyContainer.cs" />
+    <Compile Include="Model\PropertyList.cs" />
     <Compile Include="Tools\ExperimentSerializer.cs" />
     <Compile Include="Model\Logger.cs" />
     <Compile Include="Model\StateText.cs" />
@@ -70,6 +76,10 @@
     <Compile Include="Tools\ExperimentExporter.cs" />
     <Compile Include="Tools\ValueLimitRule.cs" />
     <Compile Include="Tools\ViewableCollection.cs" />
+    <Page Include="ExperimentProperties.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

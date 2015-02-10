@@ -12,10 +12,10 @@
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
-            <ColumnDefinition Width="200"/>
+            <ColumnDefinition Width="220"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="50"/>
+            <RowDefinition Height="34"/>
             <RowDefinition/>
             <RowDefinition/>
             <RowDefinition Height="24"/>
@@ -27,7 +27,20 @@
             <Button Margin="0,3,0,0" Command="{Binding Connect_Disconnect}">Подключить/Отключить</Button>
             <GroupBox Header="Параметры испытания">
                 <StackPanel>
-                    <HeaderedContentControl Header="Частота толкателя (Гц):">
+                    <HeaderedContentControl Header="Настройки">
+                        <StackPanel>
+                            <ComboBox ItemsSource="{Binding Properties.Properties}" SelectedItem="{Binding CurrentPropertyContainer}">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Name}"/>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                            <Button Command="{Binding AddPropertyContainer}">Добавить</Button>
+                            <Button Command="{Binding DeletePropertyContainer}">Удалить</Button>
+                        </StackPanel>
+                    </HeaderedContentControl>
+                    <HeaderedContentControl Header="Частота приложений нагрузки (Гц):">
                         <StackPanel>
                             <Slider Minimum="5" Maximum="25" IsEnabled="{Binding IsExperimentMode, Converter={StaticResource BoolInverter}}" Value="{Binding ExperimentFrequency, UpdateSourceTrigger=PropertyChanged}"></Slider>
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
@@ -45,7 +58,7 @@
                             <TextBlock HorizontalAlignment="Right" Foreground="Red" Text="{Binding (Validation.Errors)[0].ErrorContent, ElementName=tb_ExperimentFrequency}"/>
                         </StackPanel>
                     </HeaderedContentControl>
-                    <HeaderedContentControl Header="Максимальное усилие (кг):">
+                    <HeaderedContentControl Header="Максимальная нагрузка (кг):">
                         <StackPanel>
                             <Slider Minimum="80" Maximum="600" SmallChange="1" IsEnabled="{Binding IsExperimentMode, Converter={StaticResource BoolInverter}}" Value="{Binding ExperimentWeight, UpdateSourceTrigger=PropertyChanged}"></Slider>
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
@@ -65,6 +78,7 @@
                     </HeaderedContentControl>
                     <HeaderedContentControl Header="Температура (°C):">
                         <StackPanel>
+                            <CheckBox IsChecked="{Binding UseTermo, UpdateSourceTrigger=PropertyChanged}">Включить нагрев</CheckBox>
                             <Slider Minimum="10" Maximum="70" SmallChange="1" IsEnabled="{Binding IsExperimentMode, Converter={StaticResource BoolInverter}}" Value="{Binding ExperimentTemperature, UpdateSourceTrigger=PropertyChanged}"></Slider>
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
                                 <TextBox Name="tb_ExperimentTemperature" IsEnabled="{Binding IsExperimentMode, Converter={StaticResource BoolInverter}}" Width="150" TextAlignment="Right">
@@ -81,7 +95,7 @@
                             <TextBlock HorizontalAlignment="Right" Foreground="Red" Text="{Binding (Validation.Errors)[0].ErrorContent, ElementName=tb_ExperimentTemperature}"/>
                         </StackPanel>
                     </HeaderedContentControl>
-                    <HeaderedContentControl Header="Циклов приложения нагрузки:">
+                    <HeaderedContentControl Header="Количество приложений нагрузки:">
                         <StackPanel>
                             <TextBox Name="tb_ExperimentDuration" IsEnabled="{Binding IsExperimentMode, Converter={StaticResource BoolInverter}}" Width="150" TextAlignment="Right" HorizontalAlignment="Left">
                                 <TextBox.Text>
@@ -122,18 +136,32 @@
             </GroupBox>-->
         </StackPanel>
         <StackPanel Orientation="Horizontal" Grid.Column="0" Grid.Row="0">
-            <TextBlock FontSize="20" VerticalAlignment="Center"  Margin="2" Width="160" Text="{Binding Position, FallbackValue='ПОЗ: 175.23 мм'}"/>
-            <TextBlock FontSize="20" VerticalAlignment="Center"  Margin="2" Width="160" Text="{Binding Cycles, FallbackValue='ЦКЛ: 0'}"/>
-            <TextBlock FontSize="20" VerticalAlignment="Center"  Margin="2" Width="120" Text="{Binding TD1, FallbackValue='ТД1: 35.2 °С'}"/>
-            <TextBlock FontSize="20" VerticalAlignment="Center"  Margin="2" Width="120" Text="{Binding TD2, FallbackValue='ТД2: 38.3 °С'}"/>
-            <TextBlock FontSize="20" VerticalAlignment="Center"  Margin="2" Width="120" Text="{Binding TD3, FallbackValue='ТД3: 39.8 °С'}"/>
-            <TextBlock FontSize="20" VerticalAlignment="Center"  Margin="2" Width="120" Text="{Binding Delta, FallbackValue='ДЕФ: н/д'}"/>
-            <TextBlock FontSize="20" VerticalAlignment="Center"  Margin="2" Width="120" Text="{Binding Elapsed, FallbackValue='Ост.: н/д'}"/>
+            <Border BorderBrush="Black" BorderThickness="0,0,1,0" >
+                <TextBlock Padding="4" FontSize="20" VerticalAlignment="Center"  Margin="2" Width="160" Text="{Binding Position, FallbackValue='ПОЗ: 175.23 мм'}"/>
+            </Border>
+            <Border BorderBrush="Black" BorderThickness="0,0,1,0">
+                <TextBlock Padding="4" FontSize="20" VerticalAlignment="Center"  Margin="2" Width="160" Text="{Binding Cycles, FallbackValue='ЦКЛ: 0'}"/>
+            </Border>
+            <Border BorderBrush="Black" BorderThickness="0,0,1,0">
+                <TextBlock Padding="4" FontSize="20" VerticalAlignment="Center"  Margin="2" Width="120" Text="{Binding TD1, FallbackValue='ТД1: 35.2 °С'}"/>
+            </Border>
+            <Border BorderBrush="Black" BorderThickness="0,0,1,0">
+                <TextBlock Padding="4" FontSize="20" VerticalAlignment="Center"  Margin="2" Width="120" Text="{Binding TD2, FallbackValue='ТД2: 38.3 °С'}"/>
+            </Border>
+            <Border BorderBrush="Black" BorderThickness="0,0,1,0">
+                <TextBlock Padding="4" FontSize="20" VerticalAlignment="Center"  Margin="2" Width="120" Text="{Binding TD3, FallbackValue='ТД3: 39.8 °С'}"/>
+            </Border>
+            <Border BorderBrush="Black" BorderThickness="0,0,1,0">
+                <TextBlock Padding="4" FontSize="20" VerticalAlignment="Center"  Margin="2" Width="120" Text="{Binding Delta, FallbackValue='ДЕФ: н/д'}"/>
+            </Border>
+            <Border BorderBrush="Black" BorderThickness="0,0,1,0">
+                <TextBlock Padding="4" FontSize="20" VerticalAlignment="Center"  Margin="2" Width="200" Text="{Binding Elapsed, FallbackValue='Ост.: н/д'}"/>
+            </Border>
         </StackPanel>
         <ChartControl:ChartControl Grid.Column="0" Grid.Row="1" VerticalAlignment="Stretch"
                                    Title="Ход испытания:"
                                    YLable="Остаточная деформация (мм)"
-                                   XLable="Циклов"
+                                   XLable="Количество приложений нагрузки"
                                    YMinimum="0"
                                    YMaximum="220"
                                    YGridStep="20"
@@ -141,6 +169,7 @@
                                    XMaximum="1000"
                                    XGridStep="50"
                                    DataSource="{Binding ExperimentValues}"
+                                   RoundSigns="2"
                                    DataMember="Cycle">
             <ChartControl:ChartControl.ValueMembers>
                 <ChartControl:ValueMemberDefinition Color="Blue" Member="Position"/>
@@ -148,7 +177,7 @@
         </ChartControl:ChartControl>
         <ChartControl:ChartControl Grid.Column="0" Grid.Row="2" VerticalAlignment="Stretch"
                                    Title="Текущее показание:"
-                                   YLable="Усилие (кг)"
+                                   YLable="Нагрузка (кг)"
                                    XLable="Время (мс)"
                                    YMinimum="0"
                                    YMaximum="700"

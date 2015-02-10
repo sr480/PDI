@@ -34,8 +34,8 @@
             </TextBlock.LayoutTransform>
         </TextBlock>
         <TextBlock Name="x_lable" Grid.ColumnSpan="3" Grid.Row="3" Text="{Binding XLable, RelativeSource={RelativeSource AncestorType=UserControl}}" Padding="2" HorizontalAlignment="Stretch" TextAlignment="Center"/>
-        <Grid x:Name="xAxisValues" Grid.Row="2" Grid.Column="2"/>
-        <Grid x:Name="yAxisValues" Grid.Row="1" Grid.Column="1">            
+        <Grid x:Name="xAxisValues" Grid.Row="2" Grid.Column="2" Margin="0,5,0,0"/>
+        <Grid x:Name="yAxisValues" Grid.Row="1" Grid.Column="1" Margin="0,0,5,0">            
             <Grid.LayoutTransform>
                 <RotateTransform Angle="0"/>
             </Grid.LayoutTransform>

@@ -12,5 +12,6 @@ namespace PDI.Communication
         {
             return ((hiBt << 8) + loBt) * 0.0625;
         }
+
     }
 }

@@ -6,11 +6,22 @@ using System.Threading.Tasks;
 
 namespace PDI.Communication
 {
+    [Flags]
+    public enum State : byte
+    {
+        Ready = 0,
+        GetReady = 1,
+        Operating = 2,
+
+        StepperError = 32,
+        ServoError = 128
+    }
+
     public class RequestExperimentStateCommand : BaseCommand
     {
         public override int DataLen
         {
-            get { return 1612; }
+            get { return 1615; }
         }
 
         public event ExperimentStateRecievedEventHandler RespondRecieved;
@@ -24,9 +35,9 @@ namespace PDI.Communication
                     GetTensos(data),
                     GetTermo(data, 0),
                     GetTermo(data, 1),
-                    GetTermo(data, 0),
-                    GetTermo(data, 1),
+                    GetTermo(data, 2),
                     GetCycles(data),
+                    GetState(data),                    
                     GetPosition(data),
                     GetAverage(data)
                 );
@@ -57,7 +68,11 @@ namespace PDI.Communication
         }
         private int GetCycles(byte[] data)
         {
-            return data[1606] + (data[1607] << 8) + (data[1608] << 16) + (data[1609] << 24);
+            return data[1608] + (data[1609] << 8) + (data[1610] << 16) + (data[1611] << 24);
+        }
+        private byte GetState(byte[] data)
+        {
+            return data[1612];
         }
         private double GetPosition(byte[] data)
         {
@@ -72,17 +87,17 @@ namespace PDI.Communication
         public double TD1 { get; private set; }
         public double TD2 { get; private set; }
         public double TD3 { get; private set; }
-        public double TD4 { get; private set; }
         public double Position { get; private set; }
         public int Cycles { get; private set; }
+        public byte State { get; private set; }
         public double AverageTenso { get; private set; }
 
         public ExperimentStateRecievedEventArgs(double[] tensos,
                                                         double td1,
             double td2,
             double td3,
-            double td4,
             int cycles,
+            byte state,
             double position,
             double average)
         {
@@ -90,7 +105,7 @@ namespace PDI.Communication
             TD1 = td1;
             TD2 = td2;
             TD3 = td3;
-            TD4 = td4;
+            State = state;
             Cycles = cycles;
             Position = position;
             AverageTenso = average;

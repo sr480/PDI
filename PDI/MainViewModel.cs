@@ -5,15 +5,21 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 
 namespace PDI
 {
     class MainViewModel : INotifyPropertyChanged
     {
-        
+        private Model.PropertyContainer _CurrentPropertyContainer;
+        private bool _UseTermo;
+        private const string TEMPORAL_FILENAME = "temp.expml";
+
         private static readonly Model.StateText _READY = new Model.StateText() { Text = "Готовность", Color = System.Windows.Media.Brushes.LimeGreen };
+        private static readonly Model.StateText _PREPARING = new Model.StateText() { Text = "Подготовка", Color = System.Windows.Media.Brushes.Blue };
         private static readonly Model.StateText _RUNNING = new Model.StateText() { Text = "Идет испытание", Color = System.Windows.Media.Brushes.Orange };
-        private static readonly Model.StateText _ERROR = new Model.StateText() { Text = "Ошибка", Color = System.Windows.Media.Brushes.Red };
+        private static readonly Model.StateText _SERVOERROR = new Model.StateText() { Text = "Ошибка серводвигателя", Color = System.Windows.Media.Brushes.Red };
+        private static readonly Model.StateText _STEPPERERROR = new Model.StateText() { Text = "Ошибка ШД", Color = System.Windows.Media.Brushes.Red };
         private static readonly Model.StateText _NOCONNECTION = new Model.StateText() { Text = "Нет подключения", Color = System.Windows.Media.Brushes.Gray };
 
         private object locker = new object();
@@ -62,8 +68,27 @@ namespace PDI
         public Tools.Command SaveExperiment { get; private set; }
         public Tools.Command OpenExperiment { get; private set; }
         public Tools.Command Export { get; private set; }
+        public Tools.Command AddPropertyContainer { get; private set; }
+        public Tools.Command DeletePropertyContainer { get; private set; }
 
         //Properties
+        public Model.PropertyList Properties { get; private set; }
+        public Model.PropertyContainer CurrentPropertyContainer
+        {
+            get
+            {
+                return _CurrentPropertyContainer;
+            }
+            set
+            {
+                if (_CurrentPropertyContainer == value)
+                    return;
+                _CurrentPropertyContainer = value;
+                OnPropertyChanged("CurrentPropertyContainer");
+                ReadProperties();
+            }
+        }
+
         public Model.Logger Logger
         {
             get { return Model.Logger.LogInstance; }
@@ -296,6 +321,20 @@ namespace PDI
                 RaisePropertyChanged("ExperimentDuration");
             }
         }
+        public bool UseTermo
+        {
+            get
+            {
+                return _UseTermo;
+            }
+            set
+            {
+                if (_UseTermo == value)
+                    return;
+                _UseTermo = value;
+                RaisePropertyChanged("UseTermo");
+            }
+        }
 
         public MainViewModel()
         {
@@ -304,6 +343,10 @@ namespace PDI
             Export = new Tools.Command(x => ExportExcel(), x => true);//_experimentActualLog.Count > 0);
             SaveExperiment = new Tools.Command(x => SaveExperimentToFile(), x => true);
             OpenExperiment = new Tools.Command(x => OpenExperimentFile(), x => !IsExperimentMode);
+            AddPropertyContainer = new Tools.Command(x => AddPropertyContainerAction(), x => true);
+            DeletePropertyContainer = new Tools.Command(x => DeletePropertyContainerAction(), x => true);
+
+            Properties = Model.PropertyList.OpenList();
 
             _availablePorts = new Tools.ViewableCollection<string>();
             _availablePorts.Fill(System.IO.Ports.SerialPort.GetPortNames());
@@ -317,7 +360,7 @@ namespace PDI
             _dataRequestTimer = new System.Timers.Timer(1000);
             _dataRequestTimer.Elapsed += _dataRequestTimer_Elapsed;
             _dataRequestTimer.Start();
-
+            
             //GenerateTestData();
         }
 
@@ -349,24 +392,25 @@ namespace PDI
 
             var cmd = new Communication.RequestExperimentStateCommand();
             cmd.RespondRecieved += ExperimentRespondRecieved;
-            _port.SendCommand(cmd);            
+            _port.SendCommand(cmd);
         }
 
         void ExperimentRespondRecieved(object sender, Communication.ExperimentStateRecievedEventArgs e)
         {
-            TD1 = string.Format("ТД1: {0} °C", e.TD1);
-            TD2 = string.Format("ТД2: {0} °C", e.TD2);
-            TD3 = string.Format("ТД3: {0} °C", e.TD3);
-            Position = string.Format("ПОЗ: {0} мм", e.Position);
+            TD1 = string.Format("ТД1: {0} °C", Math.Round(e.TD1, 1));
+            TD2 = string.Format("ТД2: {0} °C", Math.Round(e.TD2, 1));
+            TD3 = string.Format("ТД3: {0} °C", Math.Round(e.TD3, 1));
+            Position = string.Format("ПОЗ: {0} мм", Math.Round(e.Position, 2));
             Cycles = string.Format("ЦКЛ: {0}", e.Cycles);
+            SetStatus((Communication.State)e.State);
             if (_experimentActualLog.Count > 0)
                 Delta = string.Format("ДЕФ: {0} мм", Math.Round(e.Position - _experimentActualLog[0].Position, 2));
             else
                 Delta = "ДЕФ: н/д";
-
-            if(_ExperimentDuration != 0)
+            //Elapsed = string.Format("ОСТ: {0}", e.AverageTenso);
+            if (_ExperimentDuration != 0)
             {
-                double secs = (double)_ExperimentDuration / (double)_ExperimentFrequency;
+                double secs = (double)_ExperimentDuration / (double)_ExperimentFrequency - (double)e.Cycles / (double)_ExperimentFrequency;
                 var ts = TimeSpan.FromSeconds(secs);
                 Elapsed = string.Format("ОСТ: {0}", ts);
             }
@@ -378,6 +422,22 @@ namespace PDI
 
             CyclesRecieved(e.Cycles, e.Position);
             RedrawExperiment();
+
+            if(e.Cycles > 0 )
+                SaveTempExperiment();
+        }
+        private void SetStatus(Communication.State state)
+        {
+            if (state == Communication.State.Ready)
+                CurrentState = _READY;
+            else if (state == Communication.State.GetReady)
+                CurrentState = _PREPARING;
+            else if (state == Communication.State.Operating)
+                CurrentState = _RUNNING;
+            else if (state == Communication.State.ServoError)
+                CurrentState = _SERVOERROR;
+            else if (state == Communication.State.StepperError)
+                CurrentState = _STEPPERERROR;
         }
         private void CyclesRecieved(int cycles, double position)
         {
@@ -406,13 +466,20 @@ namespace PDI
         private void RedrawExperiment()
         {
             int proxyCount = 800;
+
+            double startPosition = 0;
+            if (_experimentActualLog.Count > 0)
+                startPosition = _experimentActualLog[0].Position;
+
             if (_experimentActualLog.Count > proxyCount * 2)
             {
                 int step = _experimentActualLog.Count / proxyCount;
-                ExperimentValues.BulkFill(_experimentActualLog.Where((x, i) => i % step == 0).ToArray());
+                ExperimentValues.BulkFill(_experimentActualLog.Where((x, i) => i % step == 0).
+                    Select(x => new Model.ExperimentLog(x.Cycle, x.Position - startPosition)).ToArray());
             }
             else
-                ExperimentValues.BulkFill(_experimentActualLog);
+                ExperimentValues.BulkFill(_experimentActualLog.
+                    Select(x => new Model.ExperimentLog(x.Cycle, x.Position - startPosition)));
         }
 
         private void SaveExperimentToFile()
@@ -425,6 +492,11 @@ namespace PDI
 
             if (result == true)
                 Tools.ExperimentSerializer.Save(sd.FileName, exp);
+        }
+        private void SaveTempExperiment()
+        {
+            var exp = new Tools.ExperimentSerializer(ExperimentFrequency, ExperimentWeight, ExperimentTemperature, _experimentActualLog);
+            Tools.ExperimentSerializer.Save(TEMPORAL_FILENAME, exp);
         }
         private void OpenExperimentFile()
         {
@@ -465,7 +537,11 @@ namespace PDI
                 RedrawExperiment();
 
                 while (!_port.TransmitAvailable) ;
-                _port.SendCommand(new Communication.StartExperimentRequest(ExperimentFrequency, ExperimentDuration, ExperimentWeight, ExperimentDuration));
+                _port.SendCommand(new Communication.StartExperimentRequest(
+                    ExperimentFrequency, 
+                    UseTermo?ExperimentTemperature:0, 
+                    ExperimentWeight, 
+                    ExperimentDuration));
 
             }
             else
@@ -494,6 +570,37 @@ namespace PDI
             }
         }
 
+        private void AddPropertyContainerAction()
+        {
+            ExperimentPropertiesViewModel evm = new ExperimentPropertiesViewModel();
+            if (evm.Show())
+            {
+                Properties.Properties.Add(evm.Properties);
+                Properties.SaveList();
+            }
+        }
+        private void DeletePropertyContainerAction()
+        {
+            if (CurrentPropertyContainer == null)
+                return;
+            else
+            {
+                Properties.Properties.Remove(CurrentPropertyContainer);
+                Properties.SaveList();
+            }
+        }
+        private void ReadProperties()
+        {
+            if (CurrentPropertyContainer == null)
+                return;
+
+            ExperimentFrequency = CurrentPropertyContainer.ExperimentFrequency;
+            ExperimentWeight = CurrentPropertyContainer.ExperimentWeight;
+            ExperimentTemperature = CurrentPropertyContainer.ExperimentTemperature;
+            UseTermo = CurrentPropertyContainer.UseTermo;
+            ExperimentDuration = CurrentPropertyContainer.ExperimentDuration;            
+        }
+
         private void OnPropertyChanged(string propertyName)
         {
             if (SynchronizationContext.Current != _synchronizationContext)
@@ -506,5 +613,6 @@ namespace PDI
             if (PropertyChanged != null)
                 PropertyChanged(this, new PropertyChangedEventArgs((string)param));
         }
+
     }
 }
