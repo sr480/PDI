@@ -7,14 +7,16 @@ namespace PDI.Communication
 {
     static class BytesToWeight
     {
-        private const double WEIGHT_CONV = 0.58;
+        private const double A = 0.63393;
+        private const double B = -21.507;
+
         public static double GetWeight(byte lo, byte hi)
         {
-            return (lo + (hi << 8)) * WEIGHT_CONV;
+            return (lo + (hi << 8)) * A + B;
         }
         public static int GetBytes(int weight)
         {
-            return (int)Math.Round(weight / WEIGHT_CONV);
+            return (int)Math.Round((weight - B) / A);
         }
     }
 }

@@ -397,7 +397,8 @@ namespace PDI
 
         void ExperimentRespondRecieved(object sender, Communication.ExperimentStateRecievedEventArgs e)
         {
-            TD1 = string.Format("ТД1: {0} °C", Math.Round(e.TD1, 1));
+            TD1 = string.Format("СРЕД: {0}", e.AverageTenso);
+            //TD1 = string.Format("ТД1: {0} °C", Math.Round(e.TD1, 1));
             TD2 = string.Format("ТД2: {0} °C", Math.Round(e.TD2, 1));
             TD3 = string.Format("ТД3: {0} °C", Math.Round(e.TD3, 1));
             Position = string.Format("ПОЗ: {0} мм", Math.Round(e.Position, 2));
